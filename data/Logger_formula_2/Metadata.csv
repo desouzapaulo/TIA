@@ -1,0 +1,2 @@
+version,device name,recording epoch time,recording time,recording timezone,platform,appVersion,device id,sensors,sampleRateMs
+3,SM-A205G,1699665526259,2023-11-10_01-18-46,America/Sao_Paulo,android,1.20.0,ea2a5193-cfe9-4b51-b8f6-8b8be7873678,Accelerometer|Gravity|Gyroscope|Orientation|Magnetometer|Location|Brightness|Annotation|TotalAcceleration|MagnetometerUncalibrated|GyroscopeUncalibrated|AccelerometerUncalibrated,0|0|0|0|0|0|1000||0|0|0|0
