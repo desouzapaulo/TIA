@@ -41,14 +41,5 @@ classdef AnalyzeClass < handle
         function scale(obj,factor)
             obj.data = obj.data.*factor;
         end
-        function f = mu(obj, CG, L)
-            a = obj.data(:, 2);
-            f = a./(1-(CG(1)*a-CG(3))/L);
-            for i = 1:length(a)
-                if a(i) == 0
-                    f(i) = 0;
-                end
-            end
-        end
     end
 end
