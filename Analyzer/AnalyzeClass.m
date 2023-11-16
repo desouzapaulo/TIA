@@ -41,5 +41,11 @@ classdef AnalyzeClass < handle
         function scale(obj,factor)
             obj.data = obj.data.*factor;
         end
+        function interval(obj, a, b)
+            a = a * obj.fs;
+            b = b * obj.fs;
+            obj.data = obj.data(a:b, :);
+            obj.tnorm = obj.tnorm(a:b);
+        end
     end
 end

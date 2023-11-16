@@ -10,55 +10,37 @@ folder3 = "C:\Users\paulo\Documents\MATLAB\Data-Analyzer\data\Rollout_teste_cruz
 %folder3 = '/Paulo (bolsista)/Data_Analyzer/data/Rollout_teste_cruze';
 sensor = "Accelerometer";
 Aq = 100; % Hz
-%% Parâmetros
 data = AnalyzeClass(folder2, sensor, Aq);
-CG = [0.9 0.0 0.25];                
-L = 1.55;   
-g = 9.81;
-W = 296;
-Rpr = 0.4;
-Rpf = 0.4;
-Iwr = 0;
-Iwf = 0;
+%% Parâmetros
+CG = [0.9 0.0 0.25];        % posição do CG (x, y, z)                
+L = 1.55;                   % entre-eixos
+g = 9.81;                   % gravidade
+W = 296 + 80;               % peso total
+Rp = [0.252 0.252];         % raio das pastilhas (diant, tras)
+Iw = [1.64 1.64];           % momento de inércia do conjunto de pneu/roda (diant, tras)
+Rext = [0.097 0.106];       % raio externo do disco de freio (diant, tras)
+Hp = [0.021 0.021];         % altura da pastilha em relação ao centro da roda
+mup = 0.45;                 % coeficiente de atrito da pastilha
+Acp = 0.00098;              % área total do cilintros das pinças (diant, tras)
+Acm = 0.00019;              % área do cilindro mestre
+Hr = 0.2;                   % relação do pedal (cilindo/pé)
 %% Acquisition rate [Hz]
-figure(1)
 plot(data.acqrt)
 ylabel('Acquisition rate [Hz]')
-%%
+%% Basic methods 
 data.normdata()
 data.fft()
 data.filter(5)
 data.scale(1/g)
-%% Acceleration [g]
-figure(2)
-plot(data.tnorm, data.data(:, 2))
-xlabel('time [s]')
-ylabel('Acceleration [g]')
-grid on
-%%
-brake = BrakeClass(data.data(: ,2));
-%%
-brake.mudata(CG, L)
-brake.dynreac(W, CG(1), CG(2), L)
-brake.lockforce(W, CG(1), CG(2), L)
-brake.btorque(Rpr, Rpf, Iwr, Iwf)
-
-%%
-figure(3)
-plot(brake.mu)
-xlabel('time [s]')
-ylabel('\mu')
-grid on
-%%
-figure(4)
-plot(brake.Fz(:, 1), brake.Fz(:, 2))
-xlabel('Fzf [N]')
-ylabel('Fzf [N]')
-grid on
-%%
-figure(5)
-plot(brake.Tp(:, 1), brake.Tp(:, 2))
-xlabel('Tpf [N]')
-ylabel('Tpf [N]')
-grid on
-%%
+data.interval(29, 35)
+%% Brake methods
+brake = BrakeClass(data.data(: ,2), data.tnorm, CG, L, W, Rp, Iw, Rext, Hp, mup, Acp, Acm, Hr);
+%brake.acc()
+%brake.mudata()
+%brake.dynreac()
+%brake.lockforce()
+%brake.btorque()
+%brake.frictionforce()
+%brake.hydpressure()
+%brake.cylinderforce()
+%brake.pedalforce()
