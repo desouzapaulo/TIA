@@ -43,7 +43,6 @@ classdef BrakeClass < handle
             %%
             Ft = obj.Fcm(:, 1) + obj.Fcm(:, 2);
             obj.Fpedal = Ft.*Hr;
-            %%
         end
         function acc(obj)
             plot(obj.t, obj.a)
