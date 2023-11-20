@@ -22,6 +22,9 @@ classdef AnalyzeClass < handle
                 case "Accelerometer"
                     obj.data = csvread("Accelerometer.csv", 1);
                     obj.acqrt = 1./diff(obj.data(:, 2));   % Acquisition rate
+                case "Location"
+                    obj.data = csvread("Location.csv", 1);
+                    obj.acqrt = 1./diff(obj.data(:, 2));   % Acquisition rate
             end
         end
         function normdata(obj)
@@ -38,14 +41,17 @@ classdef AnalyzeClass < handle
             [c,d] = butter(2,cut*2/obj.fs,"low");
             obj.data = filtfilt(c,d,tukeywin(numel(obj.t),0.2).*obj.data);
         end
-        function scale(obj,factor)
-            obj.data = obj.data.*factor;
-        end
         function interval(obj, a, b)
             a = a * obj.fs;
             b = b * obj.fs;
             obj.data = obj.data(a:b, :);
             obj.t = obj.t(a:b);
+        end
+        function scale(obj, factor)
+            obj.data = obj.data.*factor;
+        end
+        function scalereverse(obj,factor)
+            obj.data = obj.data./factor;
         end
     end
 end

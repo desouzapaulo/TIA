@@ -14,23 +14,23 @@ classdef BrakeClass < handle
     end
     %% constructor
     methods
-        function obj = BrakeClass(a, t, g, CG, L, M, Rp, IM, Rext, Hp, mup, Acp, Acm, Hr)
+        function obj = BrakeClass(a, t, g, CG, L, W, Rp, IW, Rext, Hp, mup, Acp, Acm, Hr)
             obj.a = a;
             obj.t = t;
             phi = CG(1) / L;
             X = CG(3) / L;
-            %% coefficient of friction
-            obj.mu = obj.a./((1 - (phi + X.*obj.a)).*g);
+            %% coefficient of friction (fix)
+            obj.mu = obj.a./((1 - phi + X.*obj.a).*g);
             %% dynamic reaction on Mheels
-            Fzr = (phi - obj.a.*X).*M;
-            Fzf = (1 - phi + obj.a.*X).*M;
+            Fzr = (phi - X.*obj.a).*W;
+            Fzf = (1 - phi + X.*obj.a).*W;
             obj.Fz = [Fzf Fzr];
             %% locking forces
-            Fxr = (phi + obj.a.*X).*(obj.a.*M);
-            Fxf = (1 - phi + obj.a.*X).*(obj.a.*M);
+            Fxr = (phi + X.*obj.a).*(obj.a.*W);
+            Fxf = (1 - phi + X.*obj.a).*(obj.a.*W);
             obj.Fx = [Fxf Fxr];
             %% brake torque
-            obj.Tp = (obj.Fx*transpose(Rp)) + IM;
+            obj.Tp = (obj.Fx.*Rp) + IW.*(obj.a./Rp);
             %% friction forces on the caliper
             Ref = Rext - (Hp./2);
             obj.Fp = obj.Tp./Ref;
@@ -62,7 +62,8 @@ classdef BrakeClass < handle
             hold all
             plot(obj.t, obj.Fz(:, 2), 'r-')
             xlabel('time [s]')
-            ylabel('Fz [N]')
+            ylabel('Dynamic Reaction [N]')
+            legend('front', 'rear')
             grid on
         end
         function lockforce(obj, n)
@@ -71,7 +72,8 @@ classdef BrakeClass < handle
             hold all
             plot(obj.t, obj.Fx(:, 2), 'r-')
             xlabel('time [s]')
-            ylabel('Fx [N]')
+            ylabel('Loking Force [N]')
+            legend('front', 'rear')
             grid on
         end
         function btorque(obj, n)
@@ -80,7 +82,8 @@ classdef BrakeClass < handle
             hold all
             plot(obj.t, obj.Tp(:, 2), 'r-')
             xlabel('time [s]')
-            ylabel('Tp [Nm]')
+            ylabel('Brake Torque [Nm]')
+            legend('front', 'rear')
             grid on
         end
         function frictionforce(obj, n)
@@ -89,7 +92,8 @@ classdef BrakeClass < handle
             hold all
             plot(obj.t, obj.Fp(:, 2), 'r-')
             xlabel('time [s]')
-            ylabel('Fp [N]')
+            ylabel('Friction Force [N]')
+            legend('front', 'rear')
             grid on
         end
         function hydpressure(obj, n)
@@ -98,7 +102,8 @@ classdef BrakeClass < handle
             hold all
             plot(obj.t, obj.Ph(:, 2), 'r-')
             xlabel('time [s]')
-            ylabel('Ph [Pa]')
+            ylabel('Hydraulic pressure [Pa]')
+            legend('front', 'rear')
             grid on
         end
         function cylinderforce(obj, n)
