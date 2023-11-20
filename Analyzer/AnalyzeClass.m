@@ -8,7 +8,7 @@ classdef AnalyzeClass < handle
         w = [];
         A = [];
         fs = 0;
-        tnorm = [];
+        t = [];
     end
     methods
         %% Constructor
@@ -27,16 +27,16 @@ classdef AnalyzeClass < handle
         function normdata(obj)
             araw = obj.data(:,[5 4 3]);  % raw acceleration data
             traw = obj.data(:,2);    % raw time data
-            obj.tnorm = 0:1/obj.fs:traw(end);
-            obj.data = interp1(traw,araw,obj.tnorm,"spline","extrap"); % interpolate data through dt
+            obj.t = 0:1/obj.fs:traw(end);
+            obj.data = interp1(traw,araw,obj.t,"spline","extrap"); % interpolate data through dt
         end
         function fft(obj)
-            obj.w = linspace(0,obj.fs,numel(obj.tnorm));
-            obj.A = fft(obj.data,[],1)/numel(obj.tnorm);
+            obj.w = linspace(0,obj.fs,numel(obj.t));
+            obj.A = fft(obj.data,[],1)/numel(obj.t);
         end
         function filter(obj, cut)
             [c,d] = butter(2,cut*2/obj.fs,"low");
-            obj.data = filtfilt(c,d,tukeywin(numel(obj.tnorm),0.2).*obj.data);
+            obj.data = filtfilt(c,d,tukeywin(numel(obj.t),0.2).*obj.data);
         end
         function scale(obj,factor)
             obj.data = obj.data.*factor;
@@ -45,7 +45,7 @@ classdef AnalyzeClass < handle
             a = a * obj.fs;
             b = b * obj.fs;
             obj.data = obj.data(a:b, :);
-            obj.tnorm = obj.tnorm(a:b);
+            obj.t = obj.t(a:b);
         end
     end
 end
