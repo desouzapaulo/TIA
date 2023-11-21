@@ -3,7 +3,8 @@ clear
 clc
 %% folder location
 %folder = "C:\Users\paulo\Documents\MATLAB\Data-Analyzer\data\Logger_formula_2";
-folder = 'D:\Paulo (bolsista)\Data-Analyzer\data\Logger_formula_2';
+folder = "C:\Users\paulo\Documents\MATLAB\Data-Analyzer\data\Colégio_de_Aplicação_da_UFRGS-2023-11-20_21-25-31";
+%folder = 'D:\Paulo (bolsista)\Data-Analyzer\data\Logger_formula_2';
 sensor = "Accelerometer";
 Aq = 100; % Hz
 data = AnalyzeClass(folder, sensor, Aq);
@@ -14,7 +15,7 @@ ylabel('Acquisition rate [Hz]')
 data.normdata()
 data.fft()
 data.filter(5)
-data.interval(28, 35)
+%data.interval(25, 35)
 %% parameters
 CG = [0.9 0.0 0.25];        % CG position (x, y, z)                
 L = 1.55;                   % Mheel base
@@ -30,7 +31,7 @@ Acm = 0.00019;              % master cylinder area
 Hr = 0.2;                   % brake pedal ratio (cylinder/brake shoe)
 %% Brake methods
 data.scale(1/g)
-brake = BrakeClass(data.data(:, 2), data.t, g, CG, L, W, Rp, IM, Rext, Hp, mup, Acp, Acm, Hr);
+brake = BrakeClass(data.data(:, 2), data.t, CG, L, W, Rp, IM, Rext, Hp, mup, Acp, Acm, Hr);
 %brake.acc(n)
 %brake.mudata(n)
 %brake.dynreac(n)

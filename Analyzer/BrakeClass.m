@@ -14,13 +14,13 @@ classdef BrakeClass < handle
     end
     %% constructor
     methods
-        function obj = BrakeClass(a, t, g, CG, L, W, Rp, IW, Rext, Hp, mup, Acp, Acm, Hr)
+        function obj = BrakeClass(a, t, CG, L, W, Rp, IW, Rext, Hp, mup, Acp, Acm, Hr)
             obj.a = a;
             obj.t = t;
             phi = CG(1) / L;
             X = CG(3) / L;
-            %% coefficient of friction (fix)
-            obj.mu = obj.a./((1 - phi + X.*obj.a).*g);
+            %% coefficient of friction
+            obj.mu = obj.a./(1 + 1-phi + X.*obj.a);
             %% dynamic reaction on Mheels
             Fzr = (phi - X.*obj.a).*W;
             Fzf = (1 - phi + X.*obj.a).*W;
