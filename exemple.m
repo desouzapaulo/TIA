@@ -1,15 +1,23 @@
 close all
 clear
 clc
-%% folder location
-folder = "C:\Users\paulo\Documents\MATLAB\Data-Analyzer\data\Logger_formula_2";
+%%Folder location
+%folder = "C:\Users\paulo\Documents\MATLAB\Data-Analyzer\data\Logger_formula_2";
 %folder = "C:\Users\paulo\Documents\MATLAB\Data-Analyzer\data\Colégio_de_Aplicação_da_UFRGS-2023-11-20_21-25-31";
-%folder = 'D:\Paulo (bolsista)\Data-Analyzer\data\Logger_formula_2';
-sensor = "Accelerometer";
-Aq = 100; % Hz
-data = AnalyzeClass(folder, sensor, Aq);
+folder = 'D:\Paulo (bolsista)\Data-Analyzer\data\Logger_formula_2';
+%% Data Log
+acc = "Accelerometer";
+gps = "Location";
+acc_aq = 100; % Hz
+gps_aq = 1;
+data = AnalyzeClass(folder, acc, acc_aq);
+GPS_data = AnalyzeClass(folder, gps, gps_aq);
 %% Acquisition rate [Hz]
+figure(1)
 plot(data.acqrt)
+ylabel('Acquisition rate [Hz]')
+figure(2)
+plot(GPS_data.acqrt)
 ylabel('Acquisition rate [Hz]')
 %% Basic methods 
 data.normdata()
@@ -31,7 +39,7 @@ Acm = 0.00019;              % master cylinder area
 Hr = 0.2;                   % brake pedal ratio (cylinder/brake shoe)
 %% Brake methods
 data.scale(1/g)
-brake = BrakeClass(data.data(:, 2), data.t, CG, L, W, Rp, IM, Rext, Hp, mup, Acp, Acm, Hr);
+brake = BrakeClass(data.t, data.data(:, 2), CG, L, W, Rp, IM, Rext, Hp, mup, Acp, Acm, Hr);
 %brake.acc(n)
 %brake.mudata(n)
 %brake.dynreac(n)
@@ -41,3 +49,5 @@ brake = BrakeClass(data.data(:, 2), data.t, CG, L, W, Rp, IM, Rext, Hp, mup, Acp
 %brake.hydpressure(n)
 %brake.cylinderforce(n)
 %brake.pedalforce(n)
+%% Location
+GPS = LocationClass(GPS_data.data(:, 2), GPS_data.data(:, 7));
