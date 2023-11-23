@@ -10,7 +10,7 @@ classdef LocationClass < handle
             figure(n)
             plot(obj.data.data(:, 2), obj.data.data(:, 7).*3.6)
             xlabel('time [s]')
-            ylabel('Speed [Km/h]')
+            ylabel('Speed [km/h]')
             grid on
         end
     end
