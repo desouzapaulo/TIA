@@ -13,5 +13,12 @@ classdef LocationClass < handle
             ylabel('Speed [km/h]')
             grid on
         end
+        function track(obj, n)
+            figure(n)
+            plot(obj.data.data(:, 10), obj.data.data(:, 11));
+            xlabel('Latitude')
+            ylabel('Longitude')
+            grid on
+        end
     end
 end
