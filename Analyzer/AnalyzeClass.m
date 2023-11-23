@@ -1,8 +1,8 @@
 %% Data Analyzer
 classdef AnalyzeClass < handle
     properties
-        folder = '';
-        sensor = '';
+        folder string = string.empty;
+        sensor string = string.empty;
         data double = double.empty;
         acqrt double = double.empty;
         w double = double.empty;

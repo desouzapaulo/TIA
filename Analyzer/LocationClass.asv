@@ -8,9 +8,9 @@ classdef LocationClass < handle
         end
         function speed(obj, n)
             figure(n)
-            plot(obj.data.data(:, 2), obj.data.data(:, 7).*3.6)
+            plot(obj.data.data(:, 2), obj.data.data(:, 7))
             xlabel('time [s]')
-            ylabel('Speed [Km/h]')
+            ylabel('Speed [m/s]')
             grid on
         end
     end

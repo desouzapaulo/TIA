@@ -20,6 +20,7 @@ classdef BrakeClass < handle
             obj.data.fft()
             obj.data.filter(5)
             obj.data.scale(1/9.81)
+            %obj.data.interval(60, 120)
             %% parameters of the center of gravity
             phi = CG(1) / L;
             X = CG(3) / L;
