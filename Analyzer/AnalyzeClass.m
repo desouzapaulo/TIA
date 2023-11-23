@@ -3,12 +3,12 @@ classdef AnalyzeClass < handle
     properties
         folder = '';
         sensor = '';
-        data = [];
-        acqrt = [];
-        w = [];
-        A = [];
-        fs = 0;
-        t = [];
+        data double = double.empty;
+        acqrt double = double.empty;
+        w double = double.empty;
+        A double = double.empty;
+        fs double = double.empty;
+        t double = double.empty;
     end
     methods
         %% Constructor
@@ -28,7 +28,7 @@ classdef AnalyzeClass < handle
             end
         end
         function normdata(obj)
-            araw = obj.data(:,[5 4 3]);  % raw acceleration data
+            araw = obj.data(:,[5 4 3]);  % raw acceleration data ()
             traw = obj.data(:,2);    % raw time data
             obj.t = 0:1/obj.fs:traw(end);
             obj.data = interp1(traw,araw,obj.t,"spline","extrap"); % interpolate data through dt

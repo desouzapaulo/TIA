@@ -1,6 +1,6 @@
 classdef BrakeClass < handle
     properties
-    data AnalyzeClass = AnalyzeClass.empty
+    data AnalyzeClass = AnalizeClass.empty
     mu double = double.empty;
     Fz double = double.empty;
     Fx double = double.empty;
@@ -15,26 +15,25 @@ classdef BrakeClass < handle
     methods
         function obj = BrakeClass(folder, sensor, fs, CG, L, W, Rp, IW, Rext, Hp, mup, Acp, Acm, Hr)
             %% base data
-            obj.data = AnalyzeClass(folder, sensor, fs);
+            obj.data = AnalizeClass(folder, sensor, fs);
             obj.data.normdata()
             obj.data.fft()
             obj.data.filter(5)
-            obj.data.scale(1/9.81)
             %% parameters of the center of gravity
             phi = CG(1) / L;
             X = CG(3) / L;
             %% coefficient of friction
-            obj.mu = obj.data.data(:, 2)./(1 + 1-phi + X.*obj.data.data(:, 2));
+            obj.mu = obj.data.a./(1 + 1-phi + X.*obj.a);
             %% dynamic reaction on Mheels
-            Fzr = (phi - X.*obj.data.data(:, 2)).*W;
-            Fzf = (1 - phi + X.*obj.data.data(:, 2)).*W;
+            Fzr = (phi - X.*obj.data.a).*W;
+            Fzf = (1 - phi + X.*obj.data.a).*W;
             obj.Fz = [Fzf Fzr];
             %% locking forces
-            Fxr = (phi + X.*obj.data.data(:, 2)).*(obj.data.data(:, 2).*W);
-            Fxf = (1 - phi + X.*obj.data.data(:, 2)).*(obj.data.data(:, 2).*W);
+            Fxr = (phi + X.*obj.data.a).*(obj.data.a.*W);
+            Fxf = (1 - phi + X.*obj.data.a).*(obj.data.a.*W);
             obj.Fx = [Fxf Fxr];
             %% brake torque
-            obj.Tp = (obj.Fx.*Rp) + IW.*(obj.data.data(:, 2)./Rp);
+            obj.Tp = (obj.Fx.*Rp) + IW.*(obj.data.a./Rp);
             %% friction forces on the caliper
             Ref = Rext - (Hp./2);
             obj.Fp = obj.Tp./Ref;
@@ -48,7 +47,7 @@ classdef BrakeClass < handle
         end
         function acc(obj, n)
             figure(n)
-            plot(obj.data.t, obj.data.data(:, 2))
+            plot(obj.data.t, obj.data.a)
             xlabel('time [s]')
             ylabel('Acceleration [g]')
             grid on
