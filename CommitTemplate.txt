@@ -1,0 +1,23 @@
+Modificação de conteúdo: adicionar a tag [MOD]
+     - Exemplo: [MOD] metodo de calculo para Newton
+
+Adição de conteúdo: adicionar a tag [ADD]
+     - Exemplo: [ADD] classe CMS 
+
+Correção de Bugs: adicionar a tag [BUGFIX]
+     - Exemplo: [BUGFIX] Erro na tolerancia do metodo de Newton
+	 
+Documentacao: adiciona ou modifica a documentacao do codigo [DOC]
+     - Exemplo: [DOC] Manual de referencia
+ 
+Outro (outros): adicionar a tag [XXX]
+     - Exemplo: [XXX] Toto
+	 
+
+NUNCA adicione mais de um assunto por commit!
+
+Todos os metodos devem inicar por letras maiusculas 
+	- Exemplo: CalcYoungModulos
+
+Todos os atributos seguem a mesma logica
+	- Exemplo: MatrixKSafePlate
