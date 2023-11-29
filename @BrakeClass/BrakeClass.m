@@ -147,5 +147,11 @@ classdef BrakeClass < handle
             xlabel('Acceleration [g]');
             ylabel('Probabilidade');
         end
+        function distnmu(obj, n, a, b)
+            figure(n)
+            histfit(obj.mu(a*obj.data.fs:b*obj.data.fs, 1),50,'normal');
+            xlabel('Dados');
+            ylabel('Frequência');
+        end
     end
 end

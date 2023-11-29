@@ -64,6 +64,7 @@ classdef BrakeClass < handle
         end
         function dynreac(obj, n)
             figure(n)
+            hold all
             plot(obj.data.t, obj.Fz)
             xlabel('time [s]')
             ylabel('Dynamic Reaction [N]')
@@ -72,8 +73,8 @@ classdef BrakeClass < handle
         end
         function lockforce(obj, n)
             figure(n)
-            plot(obj.data.t, obj.Fx(:, 1), 'b-')
             hold all
+            plot(obj.data.t, obj.Fx(:, 1), 'b-')
             plot(obj.data.t, obj.Fx(:, 2), 'r-')
             xlabel('time [s]')
             ylabel('Loking Force [N]')
@@ -82,8 +83,8 @@ classdef BrakeClass < handle
         end
         function btorque(obj, n)
             figure(n)
-            plot(obj.data.t, obj.Tp(:, 1), 'b-')
             hold all
+            plot(obj.data.t, obj.Tp(:, 1), 'b-')
             plot(obj.data.t, obj.Tp(:, 2), 'r-')
             xlabel('time [s]')
             ylabel('Brake Torque [Nm]')
@@ -92,8 +93,8 @@ classdef BrakeClass < handle
         end
         function frictionforce(obj, n)
             figure(n)
-            plot(obj.data.t, obj.Fp(:, 1), 'b-')
             hold all
+            plot(obj.data.t, obj.Fp(:, 1), 'b-')
             plot(obj.data.t, obj.Fp(:, 2), 'r-')
             xlabel('time [s]')
             ylabel('Friction Force [N]')
@@ -102,8 +103,8 @@ classdef BrakeClass < handle
         end
         function hydpressure(obj, n)
             figure(n)
-            plot(obj.data.t, obj.Ph(:, 1), 'b-')
             hold all
+            plot(obj.data.t, obj.Ph(:, 1), 'b-')
             plot(obj.data.t, obj.Ph(:, 2), 'r-')
             xlabel('time [s]')
             ylabel('Hydraulic pressure [Pa]')
@@ -112,8 +113,8 @@ classdef BrakeClass < handle
         end
         function cylinderforce(obj, n)
             figure(n)
-            plot(obj.data.t, obj.Fcm(:, 1), 'b-')
             hold all
+            plot(obj.data.t, obj.Fcm(:, 1), 'b-')
             plot(obj.data.t, obj.Fcm(:, 2), 'r-')
             xlabel('time [s]')
             ylabel('Fcm [N]')
@@ -121,22 +122,33 @@ classdef BrakeClass < handle
         end
         function pedalforce(obj, n)
             figure(n)
+            hold all
             plot(obj.data.t, obj.Fpedal, 'b-')
             xlabel('time [s]')
             ylabel('Fpedal [N]')
             grid on
         end
-        function avg = muavg(obj, a, b)
+        function avgmu(obj, n, a, b)
             % range a:b in seconds
-            a = a*obj.data.fs;
-            b = b*obj.data.fs;
-            avg = [mean(obj.mu(a:b, 1)) mean(obj.mu(a:b, 2))];
-        end
-        function avgbrake(obj, n, a, b)
             figure(n)
-            histogram(obj.data.data(a*obj.data.fs:b*obj.data.fs, 2), 'Normalization', 'probability');
-            xlabel('Dados');
+            hold all
+            histogram(obj.mu(a*obj.data.fs:b*obj.data.fs, 1), 'Normalization', 'probability');
+            xlabel('\mu front');
             ylabel('Probabilidade');
+            figure(n+1)
+            histogram(obj.mu(a*obj.data.fs:b*obj.data.fs, 2), 'Normalization', 'probability');
+            xlabel('\mu rear');
+            ylabel('Probabilidade');
+        end
+        function avgacc(obj, n, a, b)
+            figure(n)
+            hold all
+            histogram(obj.data.data(a*obj.data.fs:b*obj.data.fs, 2), 'Normalization', 'probability');
+            xlabel('Acceleration [g]');
+            ylabel('Probabilidade');
+        end
+        function distnmu(obj, n, a, b)
+            mu = 
         end
     end
 end
