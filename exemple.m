@@ -1,8 +1,9 @@
-clear
+close all
+clear all
 clc
 %% Folders
-folder = 'D:\paulo-bolsista\Data-Analyzer\data\formula-1';
-%folder = 'D:\paulo-bolsista\Data-Analyzer\data\Logger_formula_2';
+%folder = 'D:\paulo-bolsista\Data-Analyzer\data\formula-1';
+folder = 'D:\paulo-bolsista\Data-Analyzer\data\Logger_formula_2';
 %folder = 'D:\paulo-bolsista\Data-Analyzer\data\baja-1-2023-11-20_21-25-31';
 %folder = 'D:\paulo-bolsista\Data-Analyzer\data\baja-2-2023-11-20_21-34-02';
 %folder = 'D:\paulo-bolsista\Data-Analyzer\data\baja-3-2023-11-20_21-35-55';

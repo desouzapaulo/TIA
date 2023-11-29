@@ -1,6 +1,6 @@
 classdef BrakeClass < handle
     properties
-    data AnalyzeClass = AnalizeClass.empty
+    data AnalyzeClass = AnalyzeClass.empty
     mu double = double.empty;
     Fz double = double.empty;
     Fx double = double.empty;
@@ -15,25 +15,26 @@ classdef BrakeClass < handle
     methods
         function obj = BrakeClass(folder, sensor, fs, CG, L, W, Rp, IW, Rext, Hp, mup, Acp, Acm, Hr)
             %% base data
-            obj.data = AnalizeClass(folder, sensor, fs);
+            obj.data = AnalyzeClass(folder, sensor, fs);
             obj.data.normdata()
             obj.data.fft()
-            obj.data.filter(5)
+            obj.data.filter(2)
+            obj.data.scale(1/9.81)
             %% parameters of the center of gravity
             phi = CG(1) / L;
             X = CG(3) / L;
-            %% coefficient of friction
-            obj.mu = obj.data.a./(1 + 1-phi + X.*obj.a);
             %% dynamic reaction on Mheels
-            Fzr = (phi - X.*obj.data.a).*W;
-            Fzf = (1 - phi + X.*obj.data.a).*W;
+            Fzr = (phi - X.*obj.data.data(:, 2)).*W;
+            Fzf = (1 - phi + X.*obj.data.data(:, 2)).*W;
             obj.Fz = [Fzf Fzr];
             %% locking forces
-            Fxr = (phi + X.*obj.data.a).*(obj.data.a.*W);
-            Fxf = (1 - phi + X.*obj.data.a).*(obj.data.a.*W);
+            Fxr = (phi + X.*obj.data.data(:, 2)).*(obj.data.data(:, 2).*W);
+            Fxf = (1 - phi + X.*obj.data.data(:, 2)).*(obj.data.data(:, 2).*W);
             obj.Fx = [Fxf Fxr];
+            %% coefficient of friction
+            obj.mu = obj.Fx./obj.Fz;
             %% brake torque
-            obj.Tp = (obj.Fx.*Rp) + IW.*(obj.data.a./Rp);
+            obj.Tp = (obj.Fx.*Rp) + IW.*(obj.data.data(:, 2)./Rp);
             %% friction forces on the caliper
             Ref = Rext - (Hp./2);
             obj.Fp = obj.Tp./Ref;
@@ -47,7 +48,7 @@ classdef BrakeClass < handle
         end
         function acc(obj, n)
             figure(n)
-            plot(obj.data.t, obj.data.a)
+            plot(obj.data.t, obj.data.data(:, 2))
             xlabel('time [s]')
             ylabel('Acceleration [g]')
             grid on
@@ -57,13 +58,12 @@ classdef BrakeClass < handle
             plot(obj.data.t, obj.mu)
             xlabel('time [s]')
             ylabel('\mu')
+            legend('front', 'rear')
             grid on
         end
         function dynreac(obj, n)
             figure(n)
-            plot(obj.data.t, obj.Fz(:, 1), 'b-')
-            hold all
-            plot(obj.data.t, obj.Fz(:, 2), 'r-')
+            plot(obj.data.t, obj.Fz)
             xlabel('time [s]')
             ylabel('Dynamic Reaction [N]')
             legend('front', 'rear')
@@ -124,6 +124,12 @@ classdef BrakeClass < handle
             xlabel('time [s]')
             ylabel('Fpedal [N]')
             grid on
+        end
+        function avg = muavg(obj, a, b)
+            % range a:b in seconds
+            a = a*obj.data.fs;
+            b = b*obj.data.fs;
+            avg = [mean(obj.mu(a:b, 1)) mean(obj.mu(a:b, 2))];
         end
     end
 end
