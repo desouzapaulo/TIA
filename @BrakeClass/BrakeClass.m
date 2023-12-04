@@ -16,6 +16,7 @@ classdef BrakeClass < handle
         function obj = BrakeClass(folder, sensor, fs, CG, L, W, Rp, IW, Rext, Hp, mup, Acp, Acm, Hr)
             %% base data
             obj.data = AnalyzeClass(folder, sensor, fs);
+            %obj.SensorCorrect()
             obj.data.normdata()
             obj.data.fft()
             obj.data.filter(5)
@@ -23,7 +24,7 @@ classdef BrakeClass < handle
             %% parameters of the center of gravity
             phi = CG(1) / L;
             X = CG(3) / L;
-            %% dynamic reaction on Mheels
+            %% dynamic reaction on Wheels
             Fzr = (phi - X.*obj.data.data(:, 2)).*W;
             Fzf = (1 - phi + X.*obj.data.data(:, 2)).*W;
             obj.Fz = [Fzf Fzr];

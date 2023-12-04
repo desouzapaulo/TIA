@@ -56,11 +56,10 @@ classdef AnalyzeClass < handle
         function SensorCorrect(obj)
             error('Not implemented yet.')
         end
-        %function int = dynint(data, t, v0)
+        function int = dynint(data, t)
             % data and t must be normalized
-            %int = zeros(size(data))
-            %for i  = 1:size(data, 1) 
-            %end
+            
+            int = data;
         end
     end
 end
