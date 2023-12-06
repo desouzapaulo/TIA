@@ -1,0 +1,17 @@
+**************************************************
+T1
+Iniciando aquisicao:
+01-01-2000   00:00:20
+
+Config. aquisição
+Pontos aquis.: 500
+Pontos acel.: 800
+Freq. Pulsador: 50
+Taxa amost. acel: 2000
+Taxa amost. AD: 1250000
+
+Parando aquisicao  (Daq disable):
+01-01-2000   00:00:33
+**************************************************
+
+

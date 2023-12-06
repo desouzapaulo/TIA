@@ -1,0 +1,25 @@
+Arquivo de configuração do microcontrolador
+
+----- Números de pontos de aquisição dos dados analógicos (número máximo: 1300)-----
+num_pt_aq:<500>
+
+----- Taxa de amostragem do conversor AD: 1 = 1 MHz, 2 = 1,25 MHz, 3 = 1,5 MHz, 4 = 1,75 MHz, 5 = 2 MHz, 6 = 2,25 MHz, 7 = 2,5 MHz, 8 = 2,75 MHz, 9 = 3 MHz
+taxa_amost_ad:<2>
+
+----- Frequência de aquisição do acelerômetro triaxial (máximo: 3000)-----
+num_pt_accel:<2000>
+
+----- Frequência do trigger do pulsador (HZ) (máximo: 200) -----
+freq_trig_puls:<50>
+
+----- Ajuste fino Timer 1 - Trigger do pulsador -----
+ajust_trig_puls:<0>
+
+----- Ajuste fino Timer 3 - base de  tempo de aquisição do acelerômetro -----
+ajust_amostr_accel:<-6>
+
+----- Debug do Timer 3  (0 = false, 1 = true) -----
+debug_timer3:<0>
+
+----- Debug geral (estado de máquina) (0 = false, 1 = true) -----
+debug_geral:<0>

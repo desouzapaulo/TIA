@@ -1,0 +1,13 @@
+#########################################################
+### File Compatibile with version 0.4 of PIG Software ###
+#########################################################
+#
+### Acc Calibration ###
+acc_a <class 'float'> 4.8828e-4
+acc_b <class 'float'> 0
+### Odo Calibration ###
+odo_a <class 'float'> 0.01194
+odo_b <class 'float'> 0.0
+### Og Calibration ###
+og_a <class 'float'> 5e-05
+og_b <class 'float'> -1.5

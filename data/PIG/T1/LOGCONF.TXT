@@ -1,0 +1,16 @@
+#########################################################
+### File Compatibile with version 0.4 of PIG Software ###
+#########################################################
+#
+### Config Global ###
+n_interval <class int> 25
+fs_trigger <class int> 50
+### Config Odo ###
+n_aqui_odo <class int>  20
+### Config Acc ###
+n_aqui_acc <class int> 800
+fs_acc <class int> 2000
+### Config Og ###
+n_points <class int> 500
+n_aqui_og <class int> 20
+fs_ag <class int> 1250000
