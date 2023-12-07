@@ -3,8 +3,8 @@ classdef LocationClass < handle
         data AnalyzeClass = AnalyzeClass.empty
     end
     methods
-        function obj = LocationClass(folder, sensor, fs)
-            obj.data = AnalyzeClass(folder, sensor, fs);
+        function obj = LocationClass(folder, sensor)
+            obj.data = AnalyzeClass(folder, sensor);
         end
         function speed(obj, n)
             figure(n)

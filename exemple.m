@@ -2,7 +2,8 @@ close all
 clear all
 clc
 %% Folders
-folder1 = 'D:\paulo-bolsista\Data-Analyzer\data\formula-1';
+folder1 = 'D:\paulo-bolsista\Data-Analyzer\data\PIG_dados';
+%folder1 = 'D:\paulo-bolsista\Data-Analyzer\data\formula-1';
 %folder2 = 'D:\paulo-bolsista\Data-Analyzer\data\Logger_formula_2';
 %folder1 = 'D:\paulo-bolsista\Data-Analyzer\data\baja-1-2023-11-20_21-25-31';
 %folder2 = 'D:\paulo-bolsista\Data-Analyzer\data\baja-2-2023-11-20_21-34-02';
@@ -14,10 +15,9 @@ folder1 = 'D:\paulo-bolsista\Data-Analyzer\data\formula-1';
 %folder = 'D:\paulo-bolsista\Data-Analyzer\data\baja-8-2023-11-20_21-40-26'; 
 %folder = 'D:\paulo-bolsista\Data-Analyzer\data\baja-9-2023-11-20_21-44-54';
 %% Data Log
+PIG = "PIG";
 acc = "Accelerometer";
 GPS = "Location";
-acc_aq = 100; % Hz
-gps_aq = 1;
 %% Parameters
 CG = [0.9 0.0 0.25];        % CG position (x, y, z)                
 L = 1.55;                   % wheel base
@@ -31,6 +31,5 @@ Acp = 0.00098;              % total area of the brake pads cylinders (front, rea
 Acm = 0.00019;              % master cylinder area
 Hr = 0.2;                   % brake pedal ratio (cylinder/brake shoe)
 %% Objects
-brake1 = BrakeClass(folder1, acc, acc_aq, CG, L, W, Rp, IM, Rext, Hp, mup, Acp, Acm, Hr);
-%brake2 = BrakeClass(folder2, acc, acc_aq, CG, L, W, Rp, IM, Rext, Hp, mup, Acp, Acm, Hr);
-gps = LocationClass(folder1, GPS, gps_aq);
+brake = BrakeClass(folder1, PIG, CG, L, W, Rp, IM, Rext, Hp, mup, Acp, Acm, Hr);
+gps = LocationClass(folder1, GPS);

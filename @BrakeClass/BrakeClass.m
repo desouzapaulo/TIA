@@ -13,14 +13,18 @@ classdef BrakeClass < handle
     end
     %% constructor
     methods
-        function obj = BrakeClass(folder, sensor, fs, CG, L, W, Rp, IW, Rext, Hp, mup, Acp, Acm, Hr)
+        function obj = BrakeClass(folder, sensor, CG, L, W, Rp, IW, Rext, Hp, mup, Acp, Acm, Hr)
             %% base data
-            obj.data = AnalyzeClass(folder, sensor, fs);
-            %obj.SensorCorrect()
-            obj.data.normdata()
+            obj.data = AnalyzeClass(folder, sensor);
+            %obj.data.SensorCorrect()
             obj.data.fft()
-            obj.data.filter(5)
-            obj.data.scale(1/9.81)
+            switch obj.data.sensor
+                case "Accelerometer"
+                    obj.data.filter(5)
+                    obj.data.scale(1/9.81)
+                case "PIG"
+                    obj.data.filter(100)
+            end
             %% parameters of the center of gravity
             phi = CG(1) / L;
             X = CG(3) / L;
