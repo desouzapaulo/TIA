@@ -1,0 +1,23 @@
+To correct accelerometer readings when the sensor is offset from the center of gravity, you can use the following formula³:
+
+$$a_C = a_A + \omega \times (\omega \times c) + \alpha \times c$$
+
+where:
+- $a_C$ is the acceleration at the center of gravity,
+- $a_A$ is the acceleration measured by the accelerometer,
+- $\omega$ is the angular velocity,
+- $c$ is the vector from the accelerometer to the center of gravity, and
+- $\alpha$ is the angular acceleration.
+
+This formula accounts for the fact that the accelerometer will read an acceleration whenever the vehicle rotates, even though the center of mass is not accelerating¹. The terms $\omega \times (\omega \times c)$ and $\alpha \times c$ correct for this effect.
+
+Keep in mind that this is a simplified model and may not account for all factors in a real-world scenario. For example, if the vehicle is a launch vehicle that loses a significant portion of its mass in a short time, the simple $F = ma$ model for center of mass motion may no longer be accurate¹.
+
+Also, note that gyroscope readings are unaffected by placement, unless accelerations affect the readings². If this is the case, it should be noted in the datasheet of your sensor².
+
+I hope this helps! Let me know if you have
+
+Origem: conversa com o Bing, 20/12/2023
+(1) Calculating acceleration offset by Center of Gravity (C.G.). https://physics.stackexchange.com/questions/222947/calculating-acceleration-offset-by-center-of-gravity-c-g.
+(2) Correcting Accelerometer Readings when Offset from Center of Mass: How?. https://space.stackexchange.com/questions/52354/correcting-accelerometer-readings-when-offset-from-center-of-mass-how.
+(3) Center of gravity offset for accelerometer and gyroscope readings. https://robotics.stackexchange.com/questions/24250/center-of-gravity-offset-for-accelerometer-and-gyroscope-readings.

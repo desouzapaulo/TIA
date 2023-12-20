@@ -155,20 +155,15 @@ classdef BrakeClass < handle
         function distnmu(obj, n, a, b)
             figure(n)
             histfit(obj.mu(a*obj.data.fs:b*obj.data.fs, 1), 50, 'Normal')
-            xlabel('Dados [\mu]');
-            ylabel('Frequência');
-            legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
-            title('Front \mu')
-            figure(n+1)
+            hold all
             histfit(obj.mu(a*obj.data.fs:b*obj.data.fs, 2),50,'Normal');
             xlabel('Dados [\mu]');
             ylabel('Frequência');
-            legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
-            title('Rear \mu')
-            figure(n+2)
+            legend('Red = FEM solution', 'Yellow = Analytical sulution', 'Location', 'welt')
+            figure(n+1)
             qqplot(obj.mu(a*obj.data.fs:b*obj.data.fs, 1))
             title('Front')
-            figure(n+3)
+            figure(n+2)
             qqplot(obj.mu(a*obj.data.fs:b*obj.data.fs, 2))
             title('Rear')
         end
