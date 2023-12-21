@@ -2,7 +2,8 @@ close all
 clear variables
 clc
 %% Folders
-folder1 = 'D:\paulo-bolsista\TIA\data\formula-2';
+%folder1 = 'D:\paulo-bolsista\TIA\data\formula-2';
+folder1 = 'D:\paulo-bolsista\TIA\data\PIG_dados';
 %% Data Log
 PIG = "PIG";
 Acc = "Accelerometer";
@@ -20,8 +21,11 @@ Acp = 0.00098;              % total area of the brake pads cylinders (front, rea
 Acm = 0.00019;              % master cylinder area
 Hr = 0.2;                   % brake pedal ratio (cylinder/brake shoe)
 %% Objects
-brake = BrakeClass(folder1, Acc, CG, L, W, Rp, IM, Rext, Hp, mup, Acp, Acm, Hr);
+brake = BrakeClass(folder1, PIG, CG, L, W, Rp, IM, Rext, Hp, mup, Acp, Acm, Hr);
 %gps = LocationClass(folder1, GPS);
 %% Graphs
-brake.mudata(1)
-brake.distnmu(2, 10, 16)
+brake.acc()
+brake.distn(8, 9.5, 'acc')
+%brake.mudata()
+%brake.distn(29, 31, 'mu')
+

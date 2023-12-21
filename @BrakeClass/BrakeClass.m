@@ -51,15 +51,15 @@ classdef BrakeClass < handle
             Ft = obj.Fcm(:, 1) + obj.Fcm(:, 2);
             obj.Fpedal = Ft.*Hr;
         end
-        function acc(obj, n)
-            figure(n)
+        function acc(obj)
+            figure
             plot(obj.data.t, obj.data.data(:, 2))
             xlabel('time [s]')
             ylabel('Acceleration [g]')
             grid on
         end
-        function mudata(obj, n)
-            figure(n)
+        function mudata(obj)
+            figure()
             hold all
             plot(obj.data.t, obj.mu)
             xlabel('time [s]')
@@ -67,8 +67,8 @@ classdef BrakeClass < handle
             legend('front', 'rear')
             grid on
         end
-        function dynreac(obj, n)
-            figure(n)
+        function dynreac(obj)
+            figure
             hold all
             plot(obj.data.t, obj.Fz)
             xlabel('time [s]')
@@ -76,8 +76,8 @@ classdef BrakeClass < handle
             legend('front', 'rear')
             grid on
         end
-        function lockforce(obj, n)
-            figure(n)
+        function lockforce(obj)
+            figure
             hold all
             plot(obj.data.t, obj.Fx(:, 1), 'b-')
             plot(obj.data.t, obj.Fx(:, 2), 'r-')
@@ -86,8 +86,8 @@ classdef BrakeClass < handle
             legend('front', 'rear')
             grid on
         end
-        function btorque(obj, n)
-            figure(n)
+        function btorque(obj)
+            figure
             hold all
             plot(obj.data.t, obj.Tp(:, 1), 'b-')
             plot(obj.data.t, obj.Tp(:, 2), 'r-')
@@ -96,8 +96,8 @@ classdef BrakeClass < handle
             legend('front', 'rear')
             grid on
         end
-        function frictionforce(obj, n)
-            figure(n)
+        function frictionforce(obj)
+            figure
             hold all
             plot(obj.data.t, obj.Fp(:, 1), 'b-')
             plot(obj.data.t, obj.Fp(:, 2), 'r-')
@@ -106,8 +106,8 @@ classdef BrakeClass < handle
             legend('front', 'rear')
             grid on
         end
-        function hydpressure(obj, n)
-            figure(n)
+        function hydpressure(obj)
+            figure
             hold all
             plot(obj.data.t, obj.Ph(:, 1), 'b-')
             plot(obj.data.t, obj.Ph(:, 2), 'r-')
@@ -116,8 +116,8 @@ classdef BrakeClass < handle
             legend('front', 'rear')
             grid on
         end
-        function cylinderforce(obj, n)
-            figure(n)
+        function cylinderforce(obj)
+            figure
             hold all
             plot(obj.data.t, obj.Fcm(:, 1), 'b-')
             plot(obj.data.t, obj.Fcm(:, 2), 'r-')
@@ -125,17 +125,17 @@ classdef BrakeClass < handle
             ylabel('Fcm [N]')
             grid on
         end
-        function pedalforce(obj, n)
-            figure(n)
+        function pedalforce(obj)
+            figure
             hold all
             plot(obj.data.t, obj.Fpedal, 'b-')
             xlabel('time [s]')
             ylabel('Fpedal [N]')
             grid on
         end
-        function avgmu(obj, n, a, b)
+        function avgmu(obj, a, b)
             % range a:b in seconds
-            figure(n)
+            figure
             hold all
             histogram(obj.mu(a*obj.data.fs:b*obj.data.fs, 1), 'Normalization', 'probability');
             xlabel('\mu front');
@@ -145,32 +145,45 @@ classdef BrakeClass < handle
             xlabel('\mu rear');
             ylabel('Probabilidade');
         end
-        function avgacc(obj, n, a, b)
-            figure(n)
+        function avgacc(obj, a, b)
+            figure
             hold all
             histogram(obj.data.data(a*obj.data.fs:b*obj.data.fs, 2), 'Normalization', 'probability');
-            xlabel('Acceleration [g]');
-            ylabel('Probabilidade');
+            
         end
-        function distnmu(obj, n, a, b)
-            figure(n)
-            histfit(obj.mu(a*obj.data.fs:b*obj.data.fs, 1), 50, 'Normal')
-            xlabel('Dados [\mu]');
-            ylabel('Frequência');
-            legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
-            title('Front \mu')
-            figure(n+1)
-            histfit(obj.mu(a*obj.data.fs:b*obj.data.fs, 2),50,'Normal');
-            xlabel('Dados [\mu]');
-            ylabel('Frequência');
-            legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
-            title('Rear \mu')
-            figure(n+2)
-            qqplot(obj.mu(a*obj.data.fs:b*obj.data.fs, 1))
-            title('Front')
-            figure(n+3)
-            qqplot(obj.mu(a*obj.data.fs:b*obj.data.fs, 2))
-            title('Rear')
+        function distn(obj, a, b, type)
+            switch type
+                case 'mu'
+                    figure
+                    histfit(obj.mu(a*obj.data.fs:b*obj.data.fs, 1), 50, 'Normal')
+                    xlabel('Dados [\mu]');
+                    ylabel('Frequência');
+                    legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
+                    title('Front \mu')
+                    figure
+                    histfit(obj.mu(a*obj.data.fs:b*obj.data.fs, 2),50,'Normal');
+                    xlabel('Dados [\mu]');
+                    ylabel('Frequência');
+                    legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
+                    title('Rear \mu')
+                    figure
+                    qqplot(obj.mu(a*obj.data.fs:b*obj.data.fs, 1))
+                    title('Front')
+                    figure
+                    qqplot(obj.mu(a*obj.data.fs:b*obj.data.fs, 2))
+                    title('Rear')
+                case 'acc'
+                    figure
+                    histfit(obj.data.data(a*obj.data.fs:b*obj.data.fs, 2),50,'Normal');
+                    xlabel('Data [acc]');
+                    ylabel('Frequency');
+                    legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
+                    figure
+                    qqplot(obj.data.data(a*obj.data.fs:b*obj.data.fs, 2));
+                    title('Acc data')
+                    
+                
+            end
         end
     end
 end
