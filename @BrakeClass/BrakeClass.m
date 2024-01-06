@@ -109,10 +109,10 @@ classdef BrakeClass < handle
         function hydpressure(obj)
             figure
             hold all
-            plot(obj.data.t, obj.Ph(:, 1), 'b-')
-            plot(obj.data.t, obj.Ph(:, 2), 'r-')
+            plot(obj.data.t, (obj.Ph(:, 1))*1E-5, 'b-')
+            plot(obj.data.t, (obj.Ph(:, 2))*1E-5, 'r-')
             xlabel('time [s]')
-            ylabel('Hydraulic pressure [Pa]')
+            ylabel('Hydraulic pressure [Bar]')
             legend('front', 'rear')
             grid on
         end
@@ -128,9 +128,9 @@ classdef BrakeClass < handle
         function pedalforce(obj)
             figure
             hold all
-            plot(obj.data.t, obj.Fpedal, 'b-')
+            plot(obj.data.t, (obj.Fpedal)/9.81, 'b-')
             xlabel('time [s]')
-            ylabel('Fpedal [N]')
+            ylabel('Fpedal [Kg]')
             grid on
         end
         function avgmu(obj, a, b)
