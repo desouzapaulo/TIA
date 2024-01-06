@@ -35,7 +35,6 @@ classdef AnalyzeClass < handle
                     obj.t = readmatrix("PIG_time.csv");
             end
         end
-        
         function fft(obj)
             obj.w = linspace(0,obj.fs,numel(obj.t));
             obj.A = fft(obj.data,[],1)/numel(obj.t);
@@ -43,12 +42,6 @@ classdef AnalyzeClass < handle
         function filter(obj, cut)
             [c,d] = butter(2,cut*2/obj.fs,"low");
             obj.data = filtfilt(c,d,tukeywin(numel(obj.t),0.2).*obj.data);
-        end
-        function interval(obj, a, b)
-            a = a * obj.fs;
-            b = b * obj.fs;
-            obj.data = obj.data(a:b, :);
-            obj.t = obj.t(a:b);
         end
         function scale(obj, factor)
             obj.data = obj.data.*factor;
