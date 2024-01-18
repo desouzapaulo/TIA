@@ -1,6 +1,6 @@
 classdef BrakeClass < handle
     properties
-    data AnalyzeClass = AnalyzeClass.empty
+    data ReadClass = ReadClass.empty
     mu double = double.empty;
     Fz double = double.empty;
     Fx double = double.empty;
@@ -13,10 +13,9 @@ classdef BrakeClass < handle
     end
     %% constructor
     methods
-        function obj = BrakeClass(folder, sensor, CG, L, W, Rp, IW, Rext, Hp, mup, Acp, Acm, Hr)
+        function obj = BrakeClass(folder, sensor)
             %% base data
-            obj.data = AnalyzeClass(folder, sensor);
-            %obj.data.SensorCorrect()
+            obj.data = ReadClass(folder, sensor);
             obj.data.fft()
             switch obj.data.sensor
                 case "Accelerometer"
@@ -25,32 +24,53 @@ classdef BrakeClass < handle
                 case "PIG"
                     obj.data.filter(100)
             end
-            %% parameters of the center of gravity
-            phi = CG(1) / L;
-            X = CG(3) / L;
-            %% dynamic reaction on Wheels
-            Fzr = (phi - X.*obj.data.data(:, 2)).*W;
-            Fzf = (1 - phi + X.*obj.data.data(:, 2)).*W;
-            obj.Fz = [Fzf Fzr];
-            %% locking forces
-            Fxr = (phi + X.*obj.data.data(:, 2)).*(obj.data.data(:, 2).*W);
-            Fxf = (1 - phi + X.*obj.data.data(:, 2)).*(obj.data.data(:, 2).*W);
-            obj.Fx = [Fxf Fxr];
-            %% coefficient of friction
-            obj.mu = obj.Fx./obj.Fz;
-            %% brake torque
-            obj.Tp = (obj.Fx.*Rp) + IW.*(obj.data.data(:, 2)./Rp);
-            %% friction forces on the caliper
-            Ref = Rext - (Hp./2);
-            obj.Fp = obj.Tp./Ref;
-            %% hidraulic pressure
-            obj.Ph = obj.Fp./(Acp*mup);
-            %% master cylinder forces
-            obj.Fcm = obj.Ph.*Acm;
-            %% brake pedral force
-            Ft = obj.Fcm(:, 1) + obj.Fcm(:, 2);
-            obj.Fpedal = Ft.*Hr;
+            
         end
+        %% dynamic reaction on Wheels
+            function calcFz(obj, phi, X, m)
+                %% parameters of the center of gravity
+                W = m*9.81;
+                Fzr = (phi - X.*obj.data.data(:, 2)).*W;
+                Fzf = (1 - phi + X.*obj.data.data(:, 2)).*W;
+                obj.Fz = [Fzf Fzr];
+            end
+            %% locking forces
+            function calcFx(obj)
+                Fxr = (phi + X.*obj.data.data(:, 2)).*(obj.data.data(:, 2).*W);
+                Fxf = (1 - phi + X.*obj.data.data(:, 2)).*(obj.data.data(:, 2).*W);
+                obj.Fx = [Fxf Fxr];
+            end
+            %% coefficient of friction
+            function calcmu(obj)
+                obj.mu = obj.Fx./obj.Fz;
+            end
+            %% brake torque
+            function calcTp(obj, RpF, RpR, IWF, IWR)
+                IW = [IWF IWR];
+                Rp = [RpF RpR];
+                obj.Tp = (obj.Fx.*Rp) + IW.*(obj.data.data(:, 2)./Rp);
+            end
+            %% friction forces on the caliper
+            function calcFp(obj, RextF, RestR, HpF, HpR)
+                Rext = [RextF RestR];
+                Hp = [HpF HpR];
+                Ref = Rext - (Hp./2);
+                obj.Fp = obj.Tp./Ref;
+            end
+            %% hidraulic pressure
+            function calcPh(obj, Acp, mup)
+                obj.Ph = obj.Fp./(Acp*mup);
+            end
+            %% master cylinder forces
+            function calcFcm(obj, Acm)
+                obj.Fcm = obj.Ph.*Acm;
+            end
+            %% brake pedral force
+            function calcFpedal(obj, Hr)
+                obj.Fpedal = (obj.Fcm(:, 1) + obj.Fcm(:, 2)).*Hr;
+            end
+            
+        %% plots
         function acc(obj)
             figure
             plot(obj.data.t, obj.data.data(:, 2))
@@ -151,8 +171,8 @@ classdef BrakeClass < handle
             histogram(obj.data.data(a*obj.data.fs:b*obj.data.fs, 2), 'Normalization', 'probability');
             
         end
-        function distn(obj, a, b, type)
-            switch type
+        function distn(obj, a, b, datatype)
+            switch datatype
                 case 'mu'
                     figure
                     histfit(obj.mu(a*obj.data.fs:b*obj.data.fs, 1), 50, 'Normal')
