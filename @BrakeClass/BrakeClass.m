@@ -13,12 +13,13 @@ classdef BrakeClass < handle
     end
     %% constructor
     methods
-        function obj = BrakeClass(folder, sensor)
+        function obj = BrakeClass(folder, logger)
             %% base data
-            obj.data = ReadClass(folder, sensor);
+            obj.data = ReadClass(folder, logger);
             obj.data.fft()
+            
             switch obj.data.sensor
-                case "Accelerometer"
+                case "Phone"
                     obj.data.filter(5)
                     obj.data.scale(1/9.81)
                 case "PIG"

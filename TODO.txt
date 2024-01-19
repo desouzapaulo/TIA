@@ -1,10 +1,4 @@
 TODO list
-- ADD Pos process in SAFE
-- FIX material association
-- ADD newmark integration
-- ADD SAFE for pipes
-- ADD SAFE for arbitrary wave guides (including jacobian transforms)
-- REDO Material Class
-- ADD BoundaryConditionClass -> should be used in BlochFloquet APP
-- ADD BlochFloquet APP
-- ADD mesh refinement using 27 tree schema
+- ADD SensorReadClass to read data from specific sensors
+- MOD move LocationClass read to SensorReadClass
+- ADD GyroscopeRead into sensor read
