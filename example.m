@@ -1,9 +1,8 @@
 close all
 clear variables
 clc
-%% Folders
-% folder = 'C:\Users\paulo\Desktop\TIA\data\Rollout_teste_cruze';
 %% Data Log
+folder = "C:\Users\paulo\Desktop\TIA\data\Phone\formula-1";
 logger = "Phone";
 %% Parameters
 phi = 0.58;
@@ -21,9 +20,8 @@ mup = 0.45;                 % coefficient of friction of the brake pad
 Acp = 0.00098;              % total area of the brake pads cylinders (front, rear)
 Acm = 0.00019;              % master cylinder area
 Hr = 0.2;                   % brake pedal ratio (cylinder/brake shoe)
-%% Objects
+%% Brake Calc
 brake = BrakeClass(folder, logger);
-%% Calculos
 brake.calcFz(phi, X, m)
 brake.calcFx()
 brake.calcmu()
@@ -32,3 +30,6 @@ brake.calcFp(RextF, RestR, HpF, HpR)
 brake.calcPh(Acp, mup)
 brake.calcFcm(Acm)
 calcFpedal(Hr)
+%% Graphics
+brake.acc()
+brake.mudata()

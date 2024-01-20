@@ -1,21 +1,34 @@
 classdef LocationClass < handle
     properties
         data ReadClass = ReadClass.empty
+        v double = double.empty;
+        lat double = double.empty;
+        long doule = double.empty;
     end
     methods
-        function obj = LocationClass(folder, sensor)
-            obj.data = ReadClass(folder, sensor);
+        %% Constructor
+        function obj = LocationClass(folder)
+            obj.data = ReadClass(folder, "Location");
         end
-        function speed(obj, n)
+        %% Velocity
+        function calcVelo(obj)
+            obj.v = obj.data.data(:, 7).*3.6; % Km/h
+        end
+        function calcTrack(obj)
+            obj.lat = obj.data.data(:, 10);
+            obj.long = obj.data.data(:, 11);
+        end
+        %% Plots
+        function veloplt(obj, n)
             figure(n)
-            plot(obj.data.data(:, 2), obj.data.data(:, 7).*3.6)
+            plot(obj.data.data(:, 2), obj.v)
             xlabel('time [s]')
             ylabel('Speed [km/h]')
             grid on
         end
-        function track(obj, n)
-            figure(n)
-            plot(obj.data.data(:, 10), obj.data.data(:, 11));
+        function trackplt(obj)
+            figure()
+            plot(obj.lat, obj.long);
             xlabel('Latitude')
             ylabel('Longitude')
             grid on

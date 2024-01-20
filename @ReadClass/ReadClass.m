@@ -37,17 +37,21 @@ classdef ReadClass < handle
                     obj.data = readmatrix("Gyroscope.csv");
             end
         end
+        %% FFT analizys
         function fft(obj)
             obj.w = linspace(0,obj.fs,numel(obj.t));
             obj.A = fft(obj.data,[],1)/numel(obj.t);
         end
+        %% Low pass filter
         function filter(obj, cut)
             [c,d] = butter(2,cut*2/obj.fs,"low");
             obj.data = filtfilt(c,d,tukeywin(numel(obj.t),0.2).*obj.data);
         end
+        %% Scale data
         function scale(obj, factor)
             obj.data = obj.data.*factor;
         end
+        %% Undo scale data
         function scalereverse(obj,factor)
             obj.data = obj.data./factor;
         end

@@ -14,22 +14,19 @@ classdef BrakeClass < handle
     %% constructor
     methods
         function obj = BrakeClass(folder, logger)
-            %% base data
-            obj.data = ReadClass(folder, logger);
-            obj.data.fft()
-            
-            switch obj.data.sensor
+            switch logger
                 case "Phone"
+                    obj.data = ReadClass(folder, "Accelerometer");
+                    obj.data.fft()
                     obj.data.filter(5)
                     obj.data.scale(1/9.81)
                 case "PIG"
+                    obj.data = ReadClass(folder, "PIG");
                     obj.data.filter(100)
-            end
-            
+            end  
         end
-        %% dynamic reaction on Wheels
+            %% dynamic reaction on Wheels
             function calcFz(obj, phi, X, m)
-                %% parameters of the center of gravity
                 W = m*9.81;
                 Fzr = (phi - X.*obj.data.data(:, 2)).*W;
                 Fzf = (1 - phi + X.*obj.data.data(:, 2)).*W;
