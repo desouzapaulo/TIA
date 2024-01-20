@@ -1,4 +1,3 @@
 TODO list
-- ADD SensorReadClass to read data from specific sensors
-- MOD move LocationClass read to SensorReadClass
-- ADD GyroscopeRead into sensor read
+- [ADD] Calc angular velocity and acceleration to GyroscopeRead.
+- [ADD] Add CG correction for acceleration in ReadClass.
