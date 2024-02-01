@@ -8,6 +8,7 @@ classdef ReadClass < handle
         A double = double.empty;
         fs double = double.empty;
         t double = double.empty;
+        
     end
     methods
         %% Constructor
