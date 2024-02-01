@@ -2,7 +2,7 @@ close all
 clear variables
 clc
 %% Data Log
-folder = "meu cu";
+folder = "C:\Users\Paulo Bolsista\Desktop\TIA\data\Phone\formula-2";
 logger = "Phone";
 %% Parameters
 phi = 0.58;
