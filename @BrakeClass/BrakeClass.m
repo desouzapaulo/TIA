@@ -19,14 +19,15 @@ classdef BrakeClass < handle
             %% dynamic reaction on Wheels
             function calcFz(obj, phi, X, m)
                 W = m*9.81;
-                Fzr = (phi - X.*obj.Acc.data(:, 2)).*W;
-                Fzf = (1 - phi + X.*obj.Acc.data(:, 2)).*W;
+                Fzr = (phi - X.*obj.Acc.read.data(:, 2)).*W;
+                Fzf = (1 - phi + X.*obj.Acc.read.data(:, 2)).*W;
                 obj.Fz = [Fzf Fzr];
             end
             %% locking forces
-            function calcFx(obj)
-                Fxr = (phi + X.*obj.Acc.data(:, 2)).*(obj.Acc.data(:, 2).*W);
-                Fxf = (1 - phi + X.*obj.Acc.data(:, 2)).*(obj.Acc.data(:, 2).*W);
+            function calcFx(obj, phi, X, m)
+                W = m*9.81;
+                Fxr = (phi + X.*obj.Acc.read.data(:, 2)).*(obj.Acc.read.data(:, 2).*W);
+                Fxf = (1 - phi + X.*obj.Acc.read.data(:, 2)).*(obj.Acc.read.data(:, 2).*W);
                 obj.Fx = [Fxf Fxr];
             end
             %% coefficient of friction
@@ -37,7 +38,7 @@ classdef BrakeClass < handle
             function calcTp(obj, RpF, RpR, IWF, IWR)
                 IW = [IWF IWR];
                 Rp = [RpF RpR];
-                obj.Tp = (obj.Fx.*Rp) + IW.*(obj.Acc.data(:, 2)./Rp);
+                obj.Tp = (obj.Fx.*Rp) + IW.*(obj.Acc.read.data(:, 2)./Rp);
             end
             %% friction forces on the caliper
             function calcFp(obj, RextF, RestR, HpF, HpR)
@@ -56,93 +57,93 @@ classdef BrakeClass < handle
             end
             %% brake pedral force
             function calcFpedal(obj, Hr)
-                obj.Fpedal = (obj.Fcm(:, 1) + obj.Fcm(:, 2)).*Hr;
+                obj.Fpedal = (obj.Fcm(:, 1) + Hr.*obj.Fcm(:, 2));
             end
             
         %% plots
-        function acc(obj)
+        function pltAcc(obj)
             figure
-            plot(obj.Acc.t, obj.Acc.data(:, 2))
+            plot(obj.Acc.read.t, obj.Acc.read.data(:, 2))
             xlabel('time [s]')
             ylabel('Acceleration [g]')
             grid on
         end
-        function mudata(obj)
+        function pltmu(obj)
             figure()
             hold all
-            plot(obj.Acc.t, obj.mu)
+            plot(obj.Acc.read.t, obj.mu)
             xlabel('time [s]')
             ylabel('\mu')
             legend('front', 'rear')
             grid on
         end
-        function dynreac(obj)
+        function pltFz(obj)
             figure
             hold all
-            plot(obj.Acc.t, obj.Fz)
+            plot(obj.Acc.read.t, obj.Fz)
             xlabel('time [s]')
             ylabel('Dynamic Reaction [N]')
             legend('front', 'rear')
             grid on
         end
-        function lockforce(obj)
+        function pltFx(obj)
             figure
             hold all
-            plot(obj.Acc.t, obj.Fx(:, 1), 'b-')
-            plot(obj.Acc.t, obj.Fx(:, 2), 'r-')
+            plot(obj.Acc.read.t, obj.Fx(:, 1), 'b-')
+            plot(obj.Acc.read.t, obj.Fx(:, 2), 'r-')
             xlabel('time [s]')
             ylabel('Loking Force [N]')
             legend('front', 'rear')
             grid on
         end
-        function btorque(obj)
+        function pltTp(obj)
             figure
             hold all
-            plot(obj.Acc.t, obj.Tp(:, 1), 'b-')
-            plot(obj.Acc.t, obj.Tp(:, 2), 'r-')
+            plot(obj.Acc.read.t, obj.Tp(:, 1), 'b-')
+            plot(obj.Acc.read.t, obj.Tp(:, 2), 'r-')
             xlabel('time [s]')
             ylabel('Brake Torque [Nm]')
             legend('front', 'rear')
             grid on
         end
-        function frictionforce(obj)
+        function pltFp(obj)
             figure
             hold all
-            plot(obj.Acc.t, obj.Fp(:, 1), 'b-')
-            plot(obj.Acc.t, obj.Fp(:, 2), 'r-')
+            plot(obj.Acc.read.t, obj.Fp(:, 1), 'b-')
+            plot(obj.Acc.read.t, obj.Fp(:, 2), 'r-')
             xlabel('time [s]')
             ylabel('Friction Force [N]')
             legend('front', 'rear')
             grid on
         end
-        function hydpressure(obj)
+        function pltPh(obj)
             figure
             hold all
-            plot(obj.Acc.t, (obj.Ph(:, 1))*1E-5, 'b-')
-            plot(obj.Acc.t, (obj.Ph(:, 2))*1E-5, 'r-')
+            plot(obj.Acc.read.t, (obj.Ph(:, 1))*1E-5, 'b-')
+            plot(obj.Acc.read.t, (obj.Ph(:, 2))*1E-5, 'r-')
             xlabel('time [s]')
             ylabel('Hydraulic pressure [Bar]')
             legend('front', 'rear')
             grid on
         end
-        function cylinderforce(obj)
+        function pltFcm(obj)
             figure
             hold all
-            plot(obj.Acc.t, obj.Fcm(:, 1), 'b-')
-            plot(obj.Acc.t, obj.Fcm(:, 2), 'r-')
+            plot(obj.Acc.read.t, obj.Fcm(:, 1), 'b-')
+            plot(obj.Acc.read.t, obj.Fcm(:, 2), 'r-')
             xlabel('time [s]')
             ylabel('Fcm [N]')
             grid on
         end
-        function pedalforce(obj)
+        function pltFpedal(obj)
             figure
             hold all
-            plot(obj.Acc.t, (obj.Fpedal)/9.81, 'b-')
+            plot(obj.Acc.read.t, (obj.Fpedal)/9.81, 'b-')
             xlabel('time [s]')
             ylabel('Fpedal [Kg]')
             grid on
         end
-        function avgmu(obj, a, b)
+        function pltavgmu(obj, a, b)
             % range a:b in seconds
             figure
             hold all
@@ -154,13 +155,13 @@ classdef BrakeClass < handle
             xlabel('\mu rear');
             ylabel('Probabilidade');
         end
-        function avgacc(obj, a, b)
+        function pltavgacc(obj, a, b)
             figure
             hold all
-            histogram(obj.Acc.data(a*obj.Acc.fs:b*obj.Acc.fs, 2), 'Normalization', 'probability');
+            histogram(obj.Acc.read.data(a*obj.Acc.fs:b*obj.Acc.fs, 2), 'Normalization', 'probability');
             
         end
-        function distn(obj, a, b, datatype)
+        function pltdistn(obj, a, b, datatype)
             switch datatype
                 case 'mu'
                     figure
@@ -183,13 +184,13 @@ classdef BrakeClass < handle
                     title('Rear')
                 case 'acc'
                     figure
-                    histfit(obj.Acc.data(a*obj.Acc.fs:b*obj.Acc.fs, 2),50,'Normal');
+                    histfit(obj.Acc.read.data(a*obj.Acc.fs:b*obj.Acc.fs, 2),50,'Normal');
                     xlabel('Data [acc]');
                     ylabel('Frequency');
                     legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
                     figure
-                    qqplot(obj.Acc.data(a*obj.Acc.fs:b*obj.Acc.fs, 2));
-                    title('Acc data')
+                    qqplot(obj.Acc.read.data(a*obj.Acc.fs:b*obj.Acc.fs, 2));
+                    title('Acc.read.data')
                     
                 
             end

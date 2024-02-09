@@ -1,12 +1,14 @@
 classdef GyroscopeClass < handle
     properties
-        data double = double.empty
-        acc double = double.empty
+        read ReadClass = ReadClass.empty
+        alpha double = double.empty
+        w double = double.empty
     end
     methods
         function obj = GyroscopeClass(folder)
-            obj.data = ReadClass(folder, "Gyroscope");
-            obj.acc = diff(data);
+            obj.read = ReadClass(folder, "Gyroscope");
+            obj.w = obj.read.data(:, 4);
+            obj.alpha = diff(obj.w);
         end
     end
 end

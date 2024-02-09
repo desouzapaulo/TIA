@@ -1,7 +1,6 @@
 classdef ReadClass < handle
     properties
-        folder string = string.empty;
-        sensor string = string.empty;
+        
         data double = double.empty;
         acqrt double = double.empty;
         w double = double.empty;
@@ -13,10 +12,8 @@ classdef ReadClass < handle
     methods
         %% Constructor
         function obj = ReadClass(folder, sensor)
-            obj.folder = folder;
-            obj.sensor = sensor;
-            cd (folder)
-            switch obj.sensor
+            cd(folder)
+            switch sensor
                 case "Accelerometer"
                     obj.fs = 100;
                     obj.data = readmatrix("Accelerometer.csv");

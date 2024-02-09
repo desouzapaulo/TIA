@@ -1,28 +1,33 @@
 classdef AccClass < handle
     properties
-        data ReadClass = ReadClass.empty
-        Gyr GyroscopeClass = GyroscopeClass.empty
-        sensorposition double = double.empty
+        read ReadClass = ReadClass.empty
+        gyr GyroscopeClass = GyroscopeClass.empty
+        C double = double.empty
+        logger = "";
     end
     methods 
         function obj = AccClass(folder, logger)
-            
-            
-            switch logger
+            obj.logger = logger;
+            switch obj.logger
                 case "Phone"
-                    acc = ReadClass(folder, "Accelerometer");
-                    gyr = GyroscopeClass(folder);
-                    obj.data = acc + gyr.data.*(gyr.data.*obj.sensorposition) + gyr.acc.*obj.sensorposition;
-                    obj.data.fft()
-                    obj.data.filter(5)
-                    obj.data.scale(1/9.81)
+                    obj.read = ReadClass(folder, "Accelerometer");
+                    obj.gyr = GyroscopeClass(folder);
+                    obj.read.fft()
+                    obj.read.filter(5)
+                    obj.read.scale(1/9.81)
                     
                 case "PIG"
-                    obj.data = ReadClass(folder, "PIG");              
-                    obj.data.filter(100)
+                    obj.read = ReadClass(folder, "PIG");              
+                    obj.read.filter(100)
             end
-            
-            
+        end
+        function correctCG(obj)
+            switch obj.logger
+                case "Phone"
+                    obj.read.data(:, 1) = obj.read.data(:, 1) + obj.gyr.w.*(obj.gyr.w*obj.C(1)) + obj.gyr.alpha.*obj.C(1);
+                    obj.read.data(:, 2) = obj.read.data(:, 2) + obj.gyr.w.*(obj.gyr.w*obj.C(2)) + obj.gyr.alpha.*obj.C(2);
+                    obj.read.data(:, 3) = obj.read.data(:, 3) + obj.gyr.w.*(obj.gyr.w*obj.C(3)) + obj.gyr.alpha.*obj.C(3);
+            end
         end
     end
 end
