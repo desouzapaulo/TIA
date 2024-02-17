@@ -1,3 +1,4 @@
 TODO list
-- [ADD] Calc angular velocity and acceleration to GyroscopeRead.
-- [ADD] Add CG correction for acceleration in ReadClass.
+- (Done)[ADD] Calc angular velocity and acceleration to GyroscopeRead.
+- (done)[ADD] Add CG correction for acceleration in AccClass.
+- [ADD] method to read all parameters at once. 

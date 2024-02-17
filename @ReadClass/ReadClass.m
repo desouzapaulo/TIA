@@ -33,6 +33,7 @@ classdef ReadClass < handle
                 case "Gyroscope"
                     obj.fs = 100; %conferir
                     obj.data = readmatrix("Gyroscope.csv");
+                    obj.acqrt = 1./diff(obj.data(:, 2));
             end
         end
         %% FFT analizys
@@ -52,6 +53,13 @@ classdef ReadClass < handle
         %% Undo scale data
         function scalereverse(obj,factor)
             obj.data = obj.data./factor;
+        end
+        %% section
+        function section(obj, a, b)
+            a = a * obj.fs;
+            b = b * obj.fs;
+            obj.data = obj.data(a:b, :);
+            obj.t = obj.t(:, a:b);
         end
         end
 end

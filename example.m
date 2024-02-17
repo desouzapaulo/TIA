@@ -20,10 +20,16 @@ mup = 0.45;                 % coefficient of friction of the brake pad
 Acp = 0.00098;              % total area of the brake pads cylinders (front, rear)
 Acm = 0.00019;              % master cylinder area
 Hr = 0.2;                   % brake pedal ratio (cylinder/brake shoe)
-%% Brake Calc
+%% Initial
 brake = BrakeClass(folder, logger);
-brake.Acc.C = [0.1 ; -0.1; 0];
-% brake.Acc.correctCG()
+brake.Acc.C = [0.5; 0.5; 0];  % z, y, x
+brake.Acc.correctCG()
+brake.Acc.read.section(28, 32);
+%% Filter
+brake.Acc.read.fft()
+brake.Acc.read.filter(5)
+brake.Acc.read.scale(1/9.81)
+%% Calculus (Must be in this order)
 brake.calcFz(phi, X, m)
 brake.calcFx(phi, X, m)
 brake.calcmu()
@@ -31,8 +37,9 @@ brake.calcTp(RpF, RpR, IWF, IWR)
 brake.calcFp(RextF, RextR, HpF, HpR)
 brake.calcPh(Acp, mup)
 brake.calcFcm(Acm)
-% calcFpedal(Hr)
+brake.calcFpedal(Hr)
 %% Graphics
 brake.pltAcc()
-brake.pltmu()
-brake.pltPh()
+% brake.pltmu()
+% brake.pltPh()
+% brake.pltFpedal()

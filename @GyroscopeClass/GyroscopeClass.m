@@ -7,8 +7,9 @@ classdef GyroscopeClass < handle
     methods
         function obj = GyroscopeClass(folder)
             obj.read = ReadClass(folder, "Gyroscope");
-            obj.w = obj.read.data(:, 4);
-            obj.alpha = diff(obj.w);
+            obj.w = obj.read.data(:, 4); % y
+            obj.alpha = [diff(obj.w); 0];
+
         end
     end
 end
