@@ -19,14 +19,14 @@ classdef LocationClass < handle
             obj.long = obj.data.data(:, 11);
         end
         %% Plots
-        function veloplt(obj, n)
+        function plotvelo(obj, n)
             figure(n)
             plot(obj.data.data(:, 2), obj.v)
             xlabel('time [s]')
             ylabel('Speed [km/h]')
             grid on
         end
-        function trackplt(obj)
+        function plttrack(obj)
             figure()
             plot(obj.lat, obj.long);
             xlabel('Latitude')

@@ -19,7 +19,7 @@ classdef ReadClass < handle
                     obj.data = readmatrix("Accelerometer.csv");
                     obj.acqrt = 1./diff(obj.data(:, 2));   % Acquisition rate
                     araw = obj.data(:,[5 4 3]);  % raw acceleration data
-                    traw = obj.data(:,2);    % raw time data
+                    traw = obj.data(:,2); 
                     obj.t = 0:1/obj.fs:traw(end);
                     obj.data = interp1(traw,araw,obj.t,"spline","extrap"); % interpolate data through dt
                 case "Location"
@@ -33,7 +33,11 @@ classdef ReadClass < handle
                 case "Gyroscope"
                     obj.fs = 100; %conferir
                     obj.data = readmatrix("Gyroscope.csv");
-                    obj.acqrt = 1./diff(obj.data(:, 2));
+                    obj.acqrt = 1./diff(obj.data(:, 2));   % Acquisition rates
+                    araw = obj.data(:,[5 4 3]);  % raw acceleration data
+                    traw = obj.data(:,2);    % raw time data
+                    obj.t = 0:1/obj.fs:traw(end);
+                    obj.data = interp1(traw,araw,obj.t,"spline","extrap"); % interpolate data through dt
             end
         end
         %% FFT analizys
@@ -51,7 +55,7 @@ classdef ReadClass < handle
             obj.data = obj.data.*factor;
         end
         %% Undo scale data
-        function scalereverse(obj,factor)
+        function undoscale(obj,factor)
             obj.data = obj.data./factor;
         end
         %% section
