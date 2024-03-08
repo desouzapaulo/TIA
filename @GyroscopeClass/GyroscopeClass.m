@@ -4,8 +4,9 @@ classdef GyroscopeClass < handle
         alpha double = double.empty
     end
     methods
-        function obj = GyroscopeClass(folder)
-            obj.R = ReadClass(folder, "Gyroscope");
+        function obj = GyroscopeClass()
+            obj.R = ReadClass();
+            obj.R.sensor = "Gyroscope";
         end
     end
 end

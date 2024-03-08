@@ -13,8 +13,8 @@ classdef BrakeClass < handle
     end
     %% constructor
     methods
-        function obj = BrakeClass(folder, logger)
-            obj.Acc = AccClass(folder, logger);
+        function obj = BrakeClass()
+            obj.Acc = AccClass();
         end
             %% dynamic reaction on Wheels
             function calcFz(obj, phi, X, m)
@@ -29,10 +29,12 @@ classdef BrakeClass < handle
                 Fxr = (phi - X.*abs(obj.Acc.R.data(:, 2))).*(abs(obj.Acc.R.data(:, 2)).*W);
                 Fxf = (1 - phi + X.*abs(obj.Acc.R.data(:, 2))).*(abs(obj.Acc.R.data(:, 2)).*W);
                 obj.Fx = [Fxf Fxr];
-            end
+            end            
             %% coefficient of friction
             function calcmu(obj)
-                obj.mu = obj.Fx./obj.Fz;
+                muf = obj.Fx(:,1)./obj.Fz(:,1);
+                mur = obj.Fx(:,2)./obj.Fz(:,2);
+                obj.mu = [muf mur];
             end
             %% brake torque
             function calcTp(obj, RpF, RpR, IWF, IWR)
@@ -71,7 +73,8 @@ classdef BrakeClass < handle
         function pltmu(obj)
             figure()
             hold all
-            plot(obj.Acc.R.t, obj.mu)
+            plot(obj.Acc.R.t, obj.mu(:,1), '-b')
+            plot(obj.Acc.R.t, obj.mu(:,2), '-r')
             xlabel('time [s]')
             ylabel('\mu')
             legend('front', 'rear')
