@@ -1,25 +1,26 @@
 classdef AccClass < handle
     properties
-       Read ReadeadClass = ReadeadClass.empty
-        G GyroscopeClass = GyroscopeClass.empty
-        C double = double.empty
+        Read ReadClass    = ReadClass.empty
+        G GyroscopeClass  = GyroscopeClass.empty
+        C double          = double.empty
+        folder = '';
         logger = '';
+        sensor = '';
     end
     methods 
-        function obj = AccClass()
+        function obj = AccClass(folder, logger)
+            obj.folder = folder;
+            obj.logger = logger;
             switch obj.logger
                 case "Phone"
-                    obj.Read =ReadeadClass();
-                    obj.Read.sensor = "Accelerometer";                    
-                    obj.G = GyroscopeClass();
-                    obj.G.Read.sensor = "Accelerometer";
-                    obj.G.Read.folder = obj.folder;
+                    obj.sensor = "Accelerometer";
+                    obj.Read = ReadClass(obj.folder, obj.sensor);                 
                 case "PIG"
-                    obj.Read = ReadeadClass();
+                    obj.Read = ReadeadClass(obj.folder, obj.logger);
                     obj.Read.sensor = "PIG";
                     obj.Read.filter(100)
                 case "SET"
-                    obj.Read = ReadeadClass();
+                    obj.Read = ReadClass(obj.folder, obj.logger);
                     obj.Read.folder = "NONE";
                     obj.Read.sensor = "SET";
             end

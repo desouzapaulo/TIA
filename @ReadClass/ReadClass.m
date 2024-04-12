@@ -11,23 +11,26 @@ classdef ReadClass < handle
     end
     methods
         %% Constructor
-        function obj = ReadClass()    
+        function obj = ReadClass(folder, sensor)    
+            obj.folder  = folder;
+            obj.sensor = sensor;
             switch obj.sensor
                 case "Accelerometer"
                     cd(obj.folder)
                     obj.fs = 100;
                     obj.data = readmatrix("Accelerometer.csv");
                     obj.acqrt = 1./diff(obj.data(:, 2));   % Acquisition rate
-                    araw = obj.data(:,[5 4 3]);  % raw acceleration data
+                    araw = obj.data(:,[5 4 3]);
                     traw = obj.data(:,2); 
                     obj.t = 0:1/obj.fs:traw(end);
                     obj.data = interp1(traw,araw,obj.t,"spline","extrap"); % interpolate data through dt
                 case "Location"
-                    cd(folder)
+                    cd(obj.folder)
                     obj.fs = 1;
                     obj.data = readmatrix("Location.csv");
                     obj.acqrt = 1./diff(obj.data(:, 2));   % Acquisition rate
                 case "PIG"
+                    cd(obj.folder)
                     obj.fs = 2000;
                     obj.data = readmatrix("PIG_acc.csv");
                     obj.t = readmatrix("PIG_time.csv");
@@ -44,13 +47,11 @@ classdef ReadClass < handle
                     obj.fs = 100;
                     step = 1/obj.fs;
                     period = 5; % seconds
-                    limit = 1.5; % g
-
+                    limit = 3; % g
                     obj.t = 0:step:period;
                     obj.data = zeros(numel(obj.t), 3);                    
                     el = 0:(limit/(numel(obj.t)-1)):limit;
                     obj.data(:, 2) = el'; 
-                
             end
         end
         %% FFT analizys
