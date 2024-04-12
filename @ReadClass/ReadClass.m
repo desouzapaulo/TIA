@@ -22,7 +22,8 @@ classdef ReadClass < handle
                     obj.acqrt = 1./diff(obj.data(:, 2));   % Acquisition rate
                     araw = obj.data(:,[5 4 3]);
                     traw = obj.data(:,2); 
-                    normalize(araw, traw)
+                    obj.t = 0:1/obj.fs:traw(end);
+                    obj.data = interp1(traw,araw,obj.t,"spline","extrap"); % interpolate data through dt
                 case "Location"
                     cd(obj.folder)
                     obj.fs = 1;
@@ -40,7 +41,8 @@ classdef ReadClass < handle
                     obj.acqrt = 1./diff(obj.data(:, 2));   % Acquisition rates
                     araw = obj.data(:,[5 4 3]);  % raw acceleration data
                     traw = obj.data(:,2);    % raw time data
-                    normalize(araw, traw)
+                    obj.t = 0:1/obj.fs:traw(end);
+                    obj.data = interp1(traw,araw,obj.t,"spline","extrap"); % interpolate data through dt
                 case "SET"
                     obj.fs = 100;
                     step = 1/obj.fs;
@@ -51,11 +53,6 @@ classdef ReadClass < handle
                     el = 0:(limit/(numel(obj.t)-1)):limit;
                     obj.data(:, 2) = el'; 
             end
-        end
-        %% Intepol
-        function normalize(obj, araw, traw)
-            obj.t = 0:1/obj.fs:traw(end);
-            obj.data = interp1(traw,araw,obj.t,"spline","extrap"); % interpolate data through dt
         end
         %% FFT analizys
         function fft(obj)
