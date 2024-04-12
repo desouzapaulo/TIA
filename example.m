@@ -35,3 +35,6 @@ brake.calcFp(RextF, RextR, HpF, HpR)
 brake.calcPh(Acp, mup)
 brake.calcFcm(Acm)
 brake.calcFpedal(Hr)
+brake.calcBL
+%% Plots
+brake.pltbrakeline

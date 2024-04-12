@@ -47,7 +47,7 @@ classdef ReadClass < handle
                     obj.fs = 100;
                     step = 1/obj.fs;
                     period = 5; % seconds
-                    limit = 1.5; % g
+                    limit = 3; % g
                     obj.t = 0:step:period;
                     obj.data = zeros(numel(obj.t), 3);                    
                     el = 0:(limit/(numel(obj.t)-1)):limit;

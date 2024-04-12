@@ -13,6 +13,7 @@ classdef BrakeClass < handle
     W double = double.empty;
     phi double = double.empty;
     X double = double.empty;
+    Bl double = double.empty;
     folder = '';
     logger = '';
     end
@@ -70,7 +71,14 @@ classdef BrakeClass < handle
         function calcFpedal(obj, Hr)
             obj.Fpedal = (obj.Fcm(:, 1)+obj.Fcm(:, 2)).*Hr;
         end
-            
+        %% Brake line
+        function calcBL(obj)
+            w = obj.W/9.81;
+            Blr = obj.Fx(:, 2)./w;
+            Blf = obj.Fx(:, 1)./w;
+            obj.Bl = [Blf Blr];
+        end
+
         %% plots
 
         function pltfft(obj)
@@ -180,9 +188,9 @@ classdef BrakeClass < handle
             figure
             hold all
             title('Brake Curve')
-            plot(obj.Fx(:,1)./obj.W, -obj.Fx(:,2)./obj.W, '-b')    
-            xlabel('Dynamic Front Axle Brake Force (Normalized)')
-            ylabel('Dynamic Rear Axle Brake Force (Normalized)')
+            plot(obj.Bl(:,2), obj.Bl(:,1))    
+            xlabel('Dynamic Rear Axle Brake Force (Normalized)')
+            ylabel('Dynamic Front Axle Brake Force (Normalized)')
             grid on
 
         end
