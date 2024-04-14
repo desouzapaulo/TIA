@@ -1,13 +1,13 @@
 close all
-clear
+clear all
 clc
 %% Load folder
 folder = 'C:\Users\paulo\Desktop\TIA\data\Phone\formula-2';
 logger = "SET";
 %% Parameters
-CG = [0.8 0.38 0];          % CG position
-L = 1.55;                   % wheelbase
-m = 386;                    % total weight (Kg)
+CG = [0.82 0 0.465];          % CG position [from front axel symetry heigth]
+L = 1.51;                   % wheelbase
+m = 265;                    % total weight (Kg)
 RpF = 0.178;
 RpR = 0.178;                % braque pad radious (front, rear)
 IWF = 1.505;
@@ -23,18 +23,18 @@ Hr = 0.044/0.176;           % brake pedal ratio (cylinder/brake shoe)
 %% Initial
 brake = BrakeClass(folder, logger);
 %% Filter
-brake.Acc.Read.fft()
-brake.Acc.Read.filter(5)
-brake.Acc.Read.scale(1/9.81)
+% brake.Acc.Read.section(29.5,31.25)
+% brake.Acc.Read.fft()
+% brake.Acc.Read.filter(5)
+% brake.Acc.Read.scale(1/9.81)
 %% Solve brake
 brake.calcFz(CG, L, m)
-brake.calcFx(CG, L, m)
+brake.calcFx()
 brake.calcmu()
 brake.calcTp(RpF, RpR, IWF, IWR)
 brake.calcFp(RextF, RextR, HpF, HpR)
 brake.calcPh(Acp, mup)
 brake.calcFcm(Acm)
 brake.calcFpedal(Hr)
-brake.calcBL
+brake.calcBL()
 %% Plots
-brake.pltbrakeline

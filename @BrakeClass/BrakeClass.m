@@ -25,17 +25,16 @@ classdef BrakeClass < handle
             obj.Acc = AccClass(obj.folder, obj.logger);            
         end
         %% dynamic reaction on Wheels
-        function calcFz(obj, phi, X, m)
+        function calcFz(obj, CG, L, m)
             obj.W = m*9.81;
-            Fzr = (phi - X.*abs(obj.Acc.Read.data(:, 2))).*obj.W;
-            Fzf = (1 - phi + X.*abs(obj.Acc.Read.data(:, 2))).*obj.W;
+            obj.phi = CG(1)/L;
+            obj.X = CG(2)/L; 
+            Fzr = (obj.phi - obj.X.*abs(obj.Acc.Read.data(:, 2))).*obj.W;
+            Fzf = (1 - obj.phi + obj.X.*abs(obj.Acc.Read.data(:, 2))).*obj.W;
             obj.Fz = [Fzf Fzr];
         end
         %% Braking forces
-        function calcFx(obj, CG, L, m)
-            obj.phi = CG(2)/L;
-            obj.X = CG(1)/L;        
-            obj.W = m*9.81;
+        function calcFx(obj)        
             Fxr = (obj.phi - obj.X.*abs(obj.Acc.Read.data(:, 2))).*(abs(obj.Acc.Read.data(:, 2)).*obj.W);
             Fxf = (1 - obj.phi + obj.X.*abs(obj.Acc.Read.data(:, 2))).*(abs(obj.Acc.Read.data(:, 2)).*obj.W);
             obj.Fx = [Fxf Fxr];
@@ -73,9 +72,8 @@ classdef BrakeClass < handle
         end
         %% Brake line
         function calcBL(obj)
-            w = obj.W/9.81;
-            Blr = obj.Fx(:, 2)./w;
-            Blf = obj.Fx(:, 1)./w;
+            Blr = obj.Fx(:, 2)./obj.W;
+            Blf = obj.Fx(:, 1)./obj.W;
             obj.Bl = [Blf Blr];
         end
 
@@ -184,7 +182,7 @@ classdef BrakeClass < handle
             ylabel('Fpedal [Kg]')
             grid on
         end
-        function pltbrakeline(obj)
+        function pltBl(obj)
             figure
             hold all
             title('Brake Curve')
