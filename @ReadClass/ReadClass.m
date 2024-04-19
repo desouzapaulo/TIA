@@ -44,14 +44,11 @@ classdef ReadClass < handle
                     obj.t = 0:1/obj.fs:traw(end);
                     obj.data = interp1(traw,araw,obj.t,"spline","extrap"); % interpolate data through dt
                 case "SET"
-                    obj.fs = 100;
-                    step = 1/obj.fs;
+                    obj.fs = 50;
                     period = 5; % seconds
                     limit = 1; % g
-                    obj.t = 0:step:period;
-                    obj.data = zeros(numel(obj.t), 3);                    
-                    el = 0:(limit/(numel(obj.t)-1)):limit;
-                    obj.data(:, 2) = (el'); 
+                    obj.t = linspace(0, period, obj.fs);
+                    obj.data(:, 2) = linspace(0, limit, obj.fs);                   
             end
         end
         %% FFT analizys

@@ -28,8 +28,8 @@ classdef BrakeClass < handle
         %% dynamic reaction on Wheels
         function calcFz(obj, CG, L, m)
             obj.W = m*obj.g;
-            obj.phi = CG(2)/L;
-            obj.X = CG(1)/L;        
+            obj.phi = CG(1)/L;
+            obj.X = CG(2)/L;        
             Fzf = (1 - obj.phi + obj.X.*(obj.Acc.Read.data(:, 2))).*obj.W;
             Fzr = (obj.phi - obj.X.*(obj.Acc.Read.data(:, 2))).*obj.W;
             obj.Fz = [Fzf Fzr];
@@ -48,8 +48,8 @@ classdef BrakeClass < handle
         end
         %% Brake line
         function calcBL(obj)
-            Blf = obj.Fx(:, 1);
-            Blr = -obj.Fx(:, 2);
+            Blf = obj.Fx(:, 1)./obj.W;
+            Blr = obj.Fx(:, 2)./obj.W;
             obj.Bl = [Blf Blr];
         end
         %% brake torque
@@ -146,7 +146,13 @@ classdef BrakeClass < handle
             hold all
             title('Optimum Braking Line')
             title('Brake Curve')
-            plot(obj.Bl(:,1), obj.Bl(:,2))    
+            plot(obj.Bl(:,2), obj.Bl(:,1))
+            % for i = 1:10
+            %     i/10 = 
+            %     a = -b./x;
+            %     y = a.*x + b;
+            %     plot(x, y)
+            % end
             xlabel('Dynamic Rear Axle Brake Force (Normalized)')
             ylabel('Dynamic Front Axle Brake Force (Normalized)')
             grid on
