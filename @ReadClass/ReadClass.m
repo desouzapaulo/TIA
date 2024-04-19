@@ -47,11 +47,11 @@ classdef ReadClass < handle
                     obj.fs = 100;
                     step = 1/obj.fs;
                     period = 5; % seconds
-                    limit = 3; % g
+                    limit = 1; % g
                     obj.t = 0:step:period;
                     obj.data = zeros(numel(obj.t), 3);                    
                     el = 0:(limit/(numel(obj.t)-1)):limit;
-                    obj.data(:, 2) = el'; 
+                    obj.data(:, 2) = (el'); 
             end
         end
         %% FFT analizys
