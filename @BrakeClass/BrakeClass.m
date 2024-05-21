@@ -145,7 +145,7 @@ classdef BrakeClass < handle
             x2 = linspace(0, obj.mu(1), length(obj.Fx_optm(1:i,2)));
             y2 = linspace(obj.mu(1), 0, length(obj.Fx_optm(1:i,2)));
 
-            [xi, yi, ii] = polyxpoly(x1, y1, x2, y2, 'unique');
+            [xi, yi] = polyxpoly(x1, y1, x2, y2, 'unique');
 
             plot([0 xi], [obj.a_fr(1) yi], 'r-', 'DisplayName', 'Lines of Constant Friction (front)')
             plot([obj.a_fr(2) xi], [0 yi], 'r-', 'DisplayName', 'Lines of Constant Friction (rear)')
