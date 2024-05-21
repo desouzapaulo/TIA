@@ -38,28 +38,8 @@ classdef BrakeClass < handle
         function obj = BrakeClass(folder, logger, psi, X, m, l_p, Amc, Awc, Rext, Hp, R, BBB)
             obj.folder = folder;
             obj.logger = logger;
-<<<<<<< HEAD
             obj.Acc = AccClass(obj.folder, obj.logger);
-            
-=======
-            obj.Acc = AccClass(obj.folder, obj.logger);            
-        end
-        %% dynamic reaction on Wheels
-        function calcFz(obj, CG, L, m)
-<<<<<<< HEAD
-            obj.W = m*9.81;
-            obj.phi = CG(1)/L;
-            obj.X = CG(2)/L; 
-            Fzr = (obj.phi - obj.X.*abs(obj.Acc.Read.data(:, 2))).*obj.W;
-            Fzf = (1 - obj.phi + obj.X.*abs(obj.Acc.Read.data(:, 2))).*obj.W;
-            obj.Fz = [Fzf Fzr];
-        end
-        %% Braking forces
-        function calcFx(obj)        
-            Fxr = (obj.phi - obj.X.*abs(obj.Acc.Read.data(:, 2))).*(abs(obj.Acc.Read.data(:, 2)).*obj.W);
-            Fxf = (1 - obj.phi + obj.X.*abs(obj.Acc.Read.data(:, 2))).*(abs(obj.Acc.Read.data(:, 2)).*obj.W);
-=======
->>>>>>> 502e1a44160dca0681955d776d81eaf1ba448cc8
+
             obj.W = m*obj.g;
             obj.psi = psi;
             obj.X = X;
@@ -91,23 +71,10 @@ classdef BrakeClass < handle
             obj.Fz = [Fzf Fzr];
        
         %% Braking forces
-<<<<<<< HEAD
             Fxf = (1 - obj.psi + obj.X.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
             Fxr = (obj.psi - obj.X.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
             obj.Fx_optm = [Fxf Fxr];
-=======
-        function calcFx(obj)
-            Fxf = (1 - obj.phi + obj.X.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
-            Fxr = (obj.phi - obj.X.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
->>>>>>> 0110fcdbf05832ae8e9580530351d46434ca797d
-            obj.Fx = [Fxf Fxr];
-        end            
-        %% coefficient of friction
-        function calcmu(obj)
-            muf = (obj.Fx(:,1)./obj.Fz(:,1));
-            mur = (obj.Fx(:,2)./obj.Fz(:,2));
-            obj.mu = [muf mur];
->>>>>>> 502e1a44160dca0681955d776d81eaf1ba448cc8
+
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%REAL BRAKING LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function calcRealBrake(obj)
@@ -123,15 +90,6 @@ classdef BrakeClass < handle
 
             
         end
-<<<<<<< HEAD
-        %% Brake line
-        function calcBL(obj)
-            Blr = obj.Fx(:, 2)./obj.W;
-            Blf = obj.Fx(:, 1)./obj.W;
-            obj.Bl = [Blf Blr];
-        end
-=======
->>>>>>> 0110fcdbf05832ae8e9580530351d46434ca797d
 
         function calcCntFriction(obj)
             %% Lines of constant friction
@@ -318,23 +276,8 @@ classdef BrakeClass < handle
             ylabel('Fpedal [Kg]')
             grid on
         end
-<<<<<<< HEAD
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%STATISTICS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-=======
-<<<<<<< HEAD
-        function pltBl(obj)
-            figure
-            hold all
-            title('Brake Curve')
-            plot(obj.Bl(:,2), obj.Bl(:,1))    
-            xlabel('Dynamic Rear Axle Brake Force (Normalized)')
-            ylabel('Dynamic Front Axle Brake Force (Normalized)')
-            grid on
-=======
->>>>>>> 0110fcdbf05832ae8e9580530351d46434ca797d
 
-        %% Statistics
->>>>>>> 502e1a44160dca0681955d776d81eaf1ba448cc8
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%STATISTICS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function pltavgmu(obj, a, b)
             % range a:b in seconds
             figure
