@@ -7,7 +7,7 @@ classdef BrakeClass < handle
     % Geometric parameters
     W double = double.empty;
     psi double = double.empty;
-    X double = double.empty;
+    chi double = double.empty;
     Fz double = double.empty;
     mu = [0.8 0.8];
     a_fr double = double.empty;
@@ -21,7 +21,7 @@ classdef BrakeClass < handle
     r double = double.empty;
     R double = double.empty;
     Po = 7; % [N/cm²]
-    Fpedal = 400;
+    Fpedal = 400:10:800; % Pedal Force [N]
     BF = 0.8;
     nu_p = 0.8; 
     nu_c = 0.98; % wheel cylinder efficiency
@@ -35,21 +35,23 @@ classdef BrakeClass < handle
     end
     %% constructor
     methods
-        function obj = BrakeClass(folder, logger, psi, X, m, l_p, Amc, Awc, Rext, Hp, R, BBB)
+        function obj = BrakeClass(folder, logger, psi, chi, BBB, parameters)
             obj.folder = folder;
             obj.logger = logger;
             obj.Acc = AccClass(obj.folder, obj.logger);
 
-            obj.W = m*obj.g;
             obj.psi = psi;
-            obj.X = X;
-            obj.l_p = l_p;
-            obj.Amc = Amc;
-            obj.Awc = Awc;
-            obj.Rext = Rext;
-            obj.Hp = Hp;
-            obj.r = Rext - (Hp);
-            obj.R = R;
+            obj.chi = chi;
+
+            obj.W = parameters(1, 2)*obj.g;            
+            obj.l_p = parameters(2, 2);
+            obj.Amc = parameters(3, 2:3);
+            obj.Awc = parameters(4, 2:3);
+            obj.Rext = parameters(5, 2:3);
+            obj.Hp = parameters(6, 2:3);            
+            obj.R = parameters(7, 2:3);
+
+            obj.r = obj.Rext - (obj.Hp);
             Bdif = abs(0.5-BBB);
             
             if BBB > 0.5 
@@ -66,13 +68,13 @@ classdef BrakeClass < handle
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%OPTIMUM BRAKE LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function calcOptBrake(obj)
         %% dynamic reaction on Wheels        
-            Fzf = (1 - obj.psi + obj.X.*(obj.Acc.Read.data(:, 2))).*obj.W;
-            Fzr = (obj.psi - obj.X.*(obj.Acc.Read.data(:, 2))).*obj.W;
+            Fzf = (1 - obj.psi + obj.chi.*(obj.Acc.Read.data(:, 2))).*obj.W;
+            Fzr = (obj.psi - obj.chi.*(obj.Acc.Read.data(:, 2))).*obj.W;
             obj.Fz = [Fzf Fzr];
        
         %% Braking forces
-            Fxf = (1 - obj.psi + obj.X.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
-            Fxr = (obj.psi - obj.X.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
+            Fxf = (1 - obj.psi + obj.chi.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
+            Fxr = (obj.psi - obj.chi.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
             obj.Fx_optm = [Fxf Fxr];
 
         end
@@ -80,20 +82,23 @@ classdef BrakeClass < handle
         function calcRealBrake(obj)
 
             %% Hydraulic pressure produced by pedal force
-            obj.Pl = obj.BBB.*2.*((obj.Fpedal*obj.l_p*obj.nu_p)./obj.Amc);
+            obj.Pl = zeros(size(obj.Fpedal, 2), 2);
+            obj.Pl(:, 1) = obj.BBB(1)*2.*((obj.Fpedal(1, :).*obj.l_p*obj.nu_p)./obj.Amc(1));
+            obj.Pl(:, 2) = obj.BBB(2)*2.*((obj.Fpedal(1, :).*obj.l_p*obj.nu_p)./obj.Amc(2));
     
             %% Actual braking force
-            obj.Fx_real = (obj.Pl - obj.Po).*obj.Awc.*(obj.nu_c*obj.BF).*(obj.r./obj.R);
+            obj.Fx_real = zeros(size(obj.Fpedal, 2), 2);
+            obj.Fx_real(:, 1) = (obj.Pl(:, 1) - obj.Po).*obj.Awc(1).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
+            obj.Fx_real(:, 2) = (obj.Pl(:, 2) - obj.Po).*obj.Awc(2).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
 
             %% Braking distribution
-            obj.phi = (obj.Fx_real(2)/(obj.Fx_real(2) + obj.Fx_real(1)));
+            obj.phi = (obj.Fx_real(1, 2)./(obj.Fx_real(1, 2) + obj.Fx_real(1, 1))); % Brake Distribution in 400 [N]
 
-            
         end
 
         function calcCntFriction(obj)
             %% Lines of constant friction
-            obj.a_fr = [(((1-obj.psi)*obj.mu(1))/(1-obj.X*obj.mu(1))) ((obj.psi*obj.mu(2))/(1+obj.X*obj.mu(2)))];
+            obj.a_fr = [(((1-obj.psi)*obj.mu(1))/(1-obj.chi*obj.mu(1))) ((obj.psi*obj.mu(2))/(1+obj.chi*obj.mu(2)))];
         end
 
         % %% brake torque
@@ -133,13 +138,6 @@ classdef BrakeClass < handle
                 end
             end
 
-            figure
-            hold all
-            title('Optimum Braking Line')
-            title('Brake Curve')
-            plot(obj.Fx_optm(1:i,2)./obj.W, obj.Fx_optm(1:i,1)./obj.W, 'DisplayName', 'Optimum Braking Line')
-            plot(obj.phi.*obj.Acc.Read.data(:, 2), linspace(0, 1, length(obj.Acc.Read.data(:, 2))), 'DisplayName', 'Real Braking Line')
-
             x1 = obj.Fx_optm(1:i,2)./obj.W;
             y1 = obj.Fx_optm(1:i,1)./obj.W;
             x2 = linspace(0, obj.mu(1), length(obj.Fx_optm(1:i,2)));
@@ -147,17 +145,23 @@ classdef BrakeClass < handle
 
             [xi, yi] = polyxpoly(x1, y1, x2, y2, 'unique');
 
-            plot([0 xi], [obj.a_fr(1) yi], 'r-', 'DisplayName', 'Lines of Constant Friction (front)')
-            plot([obj.a_fr(2) xi], [0 yi], 'r-', 'DisplayName', 'Lines of Constant Friction (rear)')
-
-            for i = 0.1:0.1:1
-                plot([0 i], [i 0], 'g--')
-            end
-
+            figure
+            hold all
+            title('Optimum Braking Line')
+            title('Brake Curve')
             axis([0 1 0 1])
             xlabel('Dynamic Rear Axle Brake Force (Normalized)')
             ylabel('Dynamic Front Axle Brake Force (Normalized)')
             grid on
+
+            plot(obj.Fx_optm(1:i,2)./obj.W, obj.Fx_optm(1:i,1)./obj.W, 'DisplayName', 'Optimum Braking Line')
+            plot(obj.phi.*obj.Acc.Read.data(:, 2), linspace(0, 1, length(obj.Acc.Read.data(:, 2))), 'DisplayName', 'Real Braking Line')
+            plot([0 xi], [obj.a_fr(1) yi], 'r-', 'DisplayName', 'Lines of Constant Friction (front)')
+            plot([obj.a_fr(2) xi], [0 yi], 'r-', 'DisplayName', 'Lines of Constant Friction (rear)')
+            for j = 0.1:0.1:1
+                plot([0 j], [j 0], 'g--')
+            end
+            
         end
         function pltfft(obj)
             figure
