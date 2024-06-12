@@ -1,85 +1,168 @@
 classdef BrakeClass < handle
     properties
-    Acc AccClass = AccClass.empty
-    mu double = double.empty;
-    Fz double = double.empty;
-    Fx double = double.empty;
-    Tp double = double.empty;
-    Re double = double.empty;
-    Fp double = double.empty;
-    Ph double = double.empty;
-    Fcm double = double.empty;
-    Fpedal double = double.empty;
-    W double = double.empty;
-    phi double = double.empty;
-    X double = double.empty;
-    Bl double = double.empty;
-    g = 9.81;
+    % Data type and folder
     folder = '';
     logger = '';
+    Acc AccClass = AccClass.empty
+    % Geometric parameters
+    W double = double.empty;
+    psi double = double.empty;
+    chi double = double.empty;
+    Fz double = double.empty;
+    mu = [0.8 0.8];
+    a_fr double = double.empty;
+    % Braking system parameters
+    Amc double = double.empty;
+    Awc double = double.empty;
+    Rext double = double.empty;
+    Hp double = double.empty;
+    l_p double = double.empty;
+    Pl double = double.empty;
+    r double = double.empty;
+    R double = double.empty;
+    Po = 7; % [N/cm²]
+    Fpedal = 400:10:800; % Pedal Force [N]
+    BF = 0.8;
+    nu_p = 0.8; 
+    nu_c = 0.98; % wheel cylinder efficiency
+    % Braking Analysis
+    Fx_optm double = double.empty;
+    Fx_real double = double.empty;
+    phi double = double.empty; % Real braking poportion (with the sistem dimentions)
+    % Braking adjustment
+    BBB double = double.empty;
+    g = 9.81;
     end
     %% constructor
     methods
-        function obj = BrakeClass(folder, logger)
+        function obj = BrakeClass(folder, logger, psi, chi, BBB, parameters)
             obj.folder = folder;
             obj.logger = logger;
-            obj.Acc = AccClass(obj.folder, obj.logger);            
+            obj.Acc = AccClass(obj.folder, obj.logger);
+
+            obj.psi = psi;
+            obj.chi = chi;
+
+            obj.W = parameters(1, 2)*obj.g;            
+            obj.l_p = parameters(2, 2);
+            obj.Amc = parameters(3, 2:3);
+            obj.Awc = parameters(4, 2:3);
+            obj.Rext = parameters(5, 2:3);
+            obj.Hp = parameters(6, 2:3);            
+            obj.R = parameters(7, 2:3);
+
+            obj.r = obj.Rext - (obj.Hp);
+            Bdif = abs(0.5-BBB);
+            
+            if BBB > 0.5 
+                obj.BBB = [(1-Bdif) (1+Bdif)];
+            end
+            if BBB < 0.5 
+                obj.BBB = [(1+Bdif) (1-Bdif)];
+            end
+            if BBB == 0.5 
+                obj.BBB = [1 1];
+            end
+
         end
-        %% dynamic reaction on Wheels
-        function calcFz(obj, CG, L, m)
-            obj.W = m*obj.g;
-            obj.phi = CG(1)/L;
-            obj.X = CG(2)/L;        
-            Fzf = (1 - obj.phi + obj.X.*(obj.Acc.Read.data(:, 2))).*obj.W;
-            Fzr = (obj.phi - obj.X.*(obj.Acc.Read.data(:, 2))).*obj.W;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%OPTIMUM BRAKE LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        function calcOptBrake(obj)
+        %% dynamic reaction on Wheels        
+            Fzf = (1 - obj.psi + obj.chi.*(obj.Acc.Read.data(:, 2))).*obj.W;
+            Fzr = (obj.psi - obj.chi.*(obj.Acc.Read.data(:, 2))).*obj.W;
             obj.Fz = [Fzf Fzr];
-        end
+       
         %% Braking forces
-        function calcFx(obj)
-            Fxf = (1 - obj.phi + obj.X.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
-            Fxr = (obj.phi - obj.X.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
-            obj.Fx = [Fxf Fxr];
-        end            
-        %% coefficient of friction
-        function calcmu(obj)
-            muf = (obj.Fx(:,1)./obj.Fz(:,1));
-            mur = (obj.Fx(:,2)./obj.Fz(:,2));
-            obj.mu = [muf mur];
+            Fxf = (1 - obj.psi + obj.chi.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
+            Fxr = (obj.psi - obj.chi.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
+            obj.Fx_optm = [Fxf Fxr];
+
         end
-        %% Brake line
-        function calcBL(obj)
-            Blf = obj.Fx(:, 1)./obj.W;
-            Blr = obj.Fx(:, 2)./obj.W;
-            obj.Bl = [Blf Blr];
-        end
-        %% brake torque
-        function calcTp(obj, RpF, RpR, IWF, IWR)
-            IW = [IWF IWR];
-            Rp = [RpF RpR];
-            obj.Tp = (obj.Fx.*Rp) + IW.*(abs(obj.Acc.Read.data(:, 2).*obj.g)./Rp);
-        end
-        %% friction forces on the caliper
-        function calcFp(obj, RextF, RextR, HpF, HpR)
-            Rext = [RextF RextR];
-            Hp = [HpF HpR];
-            Ref = Rext - (Hp./2);
-            obj.Fp = (obj.Tp./Ref).*0.5;
-        end
-        %% hidraulic pressure
-        function calcPh(obj, Acp, mup)
-            obj.Ph = obj.Fp./(Acp*mup);
-        end
-        %% master cylinder forces
-        function calcFcm(obj, Acm)
-            obj.Fcm = obj.Ph.*Acm;
-        end
-        %% brake pedral force
-        function calcFpedal(obj, Hr)
-            obj.Fpedal = (obj.Fcm(:, 1)+obj.Fcm(:, 2)).*Hr;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%REAL BRAKING LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        function calcRealBrake(obj)
+
+            %% Hydraulic pressure produced by pedal force
+            obj.Pl = zeros(size(obj.Fpedal, 2), 2);
+            obj.Pl(:, 1) = obj.BBB(1)*2.*((obj.Fpedal(1, :).*obj.l_p*obj.nu_p)./obj.Amc(1));
+            obj.Pl(:, 2) = obj.BBB(2)*2.*((obj.Fpedal(1, :).*obj.l_p*obj.nu_p)./obj.Amc(2));
+    
+            %% Actual braking force
+            obj.Fx_real = zeros(size(obj.Fpedal, 2), 2);
+            obj.Fx_real(:, 1) = (obj.Pl(:, 1) - obj.Po).*obj.Awc(1).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
+            obj.Fx_real(:, 2) = (obj.Pl(:, 2) - obj.Po).*obj.Awc(2).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
+
+            %% Braking distribution
+            obj.phi = (obj.Fx_real(1, 2)./(obj.Fx_real(1, 2) + obj.Fx_real(1, 1))); % Brake Distribution in 400 [N]
+
         end
 
-        %% plots
+        function calcCntFriction(obj)
+            %% Lines of constant friction
+            obj.a_fr = [(((1-obj.psi)*obj.mu(1))/(1-obj.chi*obj.mu(1))) ((obj.psi*obj.mu(2))/(1+obj.chi*obj.mu(2)))];
+        end
 
+        % %% brake torque
+        % function calcTp(obj, RpF, RpR, IWF, IWR)
+        %     IW = [IWF IWR];
+        %     Rp = [RpF RpR];
+        %     obj.Tp = (obj.Fx.*Rp) + IW.*(abs(obj.Acc.Read.data(:, 2).*obj.g)./Rp);
+        % end
+        % %% friction forces on the caliper
+        % function calcFp(obj, RextF, RextR, HpF, HpR)
+        %     Rext = [RextF RextR];
+        %     Hp = [HpF HpR];
+        %     Ref = Rext - (Hp./2);
+        %     obj.Fp = (obj.Tp./Ref).*0.5;
+        % end
+        % %% hidraulic pressure
+        % function calcPh(obj, Acp, mup)
+        %     obj.Ph = obj.Fp./(Acp*mup);
+        % end
+        % %% master cylinder forces
+        % function calcFcm(obj, Acm)
+        %     obj.Fcm = obj.Ph.*Acm;
+        % end
+        % %% brake pedral force
+        % function calcFpedal(obj, Hr)
+        %     obj.Fpedal = (obj.Fcm(:, 1)+obj.Fcm(:, 2)).*Hr;
+        % end
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLOTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        function pltbrakeline(obj)
+
+            plotlimit = 1;
+
+            for i = 1:length(obj.Fx_optm)
+                if (obj.Fx_optm(i,1)/obj.W)+(obj.Fx_optm(i,2)/obj.W) == plotlimit
+                    break
+                end
+            end
+
+            x1 = obj.Fx_optm(1:i,2)./obj.W;
+            y1 = obj.Fx_optm(1:i,1)./obj.W;
+            x2 = linspace(0, obj.mu(1), length(obj.Fx_optm(1:i,2)));
+            y2 = linspace(obj.mu(1), 0, length(obj.Fx_optm(1:i,2)));
+
+            [xi, yi] = polyxpoly(x1, y1, x2, y2, 'unique');
+
+            figure
+            hold all
+            title('Optimum Braking Line')
+            title('Brake Curve')
+            axis([0 1 0 1])
+            xlabel('Dynamic Rear Axle Brake Force (Normalized)')
+            ylabel('Dynamic Front Axle Brake Force (Normalized)')
+            grid on
+
+            plot(obj.Fx_optm(1:i,2)./obj.W, obj.Fx_optm(1:i,1)./obj.W, 'DisplayName', 'Optimum Braking Line')
+            plot(obj.phi.*obj.Acc.Read.data(:, 2), linspace(0, 1, length(obj.Acc.Read.data(:, 2))), 'DisplayName', 'Real Braking Line')
+            plot([0 xi], [obj.a_fr(1) yi], 'r-', 'DisplayName', 'Lines of Constant Friction (front)')
+            plot([obj.a_fr(2) xi], [0 yi], 'r-', 'DisplayName', 'Lines of Constant Friction (rear)')
+            for j = 0.1:0.1:1
+                plot([0 j], [j 0], 'g--')
+            end
+            
+        end
         function pltfft(obj)
             figure
             hold all
@@ -141,23 +224,6 @@ classdef BrakeClass < handle
             legend('front', 'rear')
             grid on
         end
-        function pltbrakeline(obj)
-            figure
-            hold all
-            title('Optimum Braking Line')
-            title('Brake Curve')
-            plot(obj.Bl(:,2), obj.Bl(:,1))
-            % for i = 1:10
-            %     i/10 = 
-            %     a = -b./x;
-            %     y = a.*x + b;
-            %     plot(x, y)
-            % end
-            xlabel('Dynamic Rear Axle Brake Force (Normalized)')
-            ylabel('Dynamic Front Axle Brake Force (Normalized)')
-            grid on
-
-        end
         function pltTp(obj)
             figure
             hold all
@@ -215,7 +281,7 @@ classdef BrakeClass < handle
             grid on
         end
 
-        %% Statistics
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%STATISTICS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function pltavgmu(obj, a, b)
             % range a:b in seconds
             figure
