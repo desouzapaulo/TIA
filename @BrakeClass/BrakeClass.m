@@ -51,7 +51,7 @@ classdef BrakeClass < handle
             obj.Hp = parameters(6, 2:3);            
             obj.R = parameters(7, 2:3);
 
-            obj.r = obj.Rext - (obj.Hp);
+            obj.r = obj.Rext - (obj.Hp./2);
             Bdif = abs(0.5-BBB);
             
             if BBB > 0.5 
