@@ -3,7 +3,7 @@ clear all
 clc
 % ======================================INPUT=================================================
 %% Load folder
-folder = 'C:\Users\paulo\Desktop\TIA';
+folder = 'C:\Users\Paulo Bolsista\Desktop\TIA';
 logger = "SET";
 %% Parameters
 filename = folder + "\parameters\RS12.xlsx";
