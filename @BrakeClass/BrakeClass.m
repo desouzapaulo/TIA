@@ -61,13 +61,13 @@ classdef BrakeClass < handle
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%OPTIMUM BRAKE LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function calcOptBrake(obj)
         %% dynamic reaction on Wheels        
-            Fzf = (1 - obj.psi + obj.chi.*(obj.Acc.Read.data(:, 2))).*obj.W;
-            Fzr = (obj.psi - obj.chi.*(obj.Acc.Read.data(:, 2))).*obj.W;
+            Fzf = (1 - obj.psi + obj.chi.*(obj.Acc.Read.data(:, 2))).*obj.W; % (Limpert eq 7.3a)
+            Fzr = (obj.psi - obj.chi.*(obj.Acc.Read.data(:, 2))).*obj.W; % (Limpert eq 7.3b)
             obj.Fz = [Fzf Fzr];
        
         %% Braking forces
-            Fxf = (1 - obj.psi + obj.chi.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
-            Fxr = (obj.psi - obj.chi.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W);
+            Fxf = (1 - obj.psi + obj.chi.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W); % (Limpert eq 7.5a)
+            Fxr = (obj.psi - obj.chi.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W); % (Limpert eq 7.5b)
             obj.Fx_optm = [Fxf Fxr];
 
         end
@@ -76,8 +76,8 @@ classdef BrakeClass < handle
 
             %% Hydraulic pressure produced by pedal force (Limpert eq 5.1)
             obj.Pl = zeros(size(obj.Fpedal_var, 2), 2);
-            obj.Pl(:, 1) = obj.BBB(1)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(1)));
-            obj.Pl(:, 2) = obj.BBB(2)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(2)));
+            obj.Pl(:, 1) = obj.BBB(1)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(1))); % (Limpert eq 7.11a)
+            obj.Pl(:, 2) = obj.BBB(2)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(2))); % (Limpert eq 7.11b)
             
     
             %% Actual braking force (Limpert eq 5.2)
@@ -85,7 +85,7 @@ classdef BrakeClass < handle
             obj.Fx_real(:, 1) = 2.*(obj.Pl(:, 1) - obj.Po).*obj.Awc(1).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
             obj.Fx_real(:, 2) = 2.*(obj.Pl(:, 2) - obj.Po).*obj.Awc(2).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
 
-            %% Braking distribution
+            %% Braking distribution (Limpert eq 7.15)
             obj.phi_var = (obj.Fx_real(:, 2)./(obj.Fx_real(:, 2) + obj.Fx_real(:, 1)));
         end
 
@@ -93,7 +93,6 @@ classdef BrakeClass < handle
             %% Lines of constant friction
             obj.a_fr = [(((1-obj.psi)*obj.mu(1))/(1-obj.chi*obj.mu(1))) ((obj.psi*obj.mu(2))/(1+obj.chi*obj.mu(2)))];
         end
-
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLOTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
         function pltfft(obj)
             figure
@@ -118,8 +117,7 @@ classdef BrakeClass < handle
         function pltavgacc(obj, a, b)
             figure
             hold all
-            histogram(obj.Acc.R.data(a*obj.Acc.fs:b*obj.Acc.fs, 2), 'Normalization', 'probability');
-            
+            histogram(obj.Acc.R.data(a*obj.Acc.fs:b*obj.Acc.fs, 2), 'Normalization', 'probability');            
         end
         function pltdistn(obj, a, b, datatype)
             switch datatype
@@ -150,9 +148,7 @@ classdef BrakeClass < handle
                     legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
                     figure
                     qqplot(obj.Acc.Read.data(a*obj.Acc.fs:b*obj.Acc.fs, 2));
-                    title('Acc.Read.data')
-                    
-                
+                    title('Acc.Read.data')                                    
             end
         end
     end
