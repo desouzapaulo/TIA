@@ -94,46 +94,7 @@ classdef BrakeClass < handle
             obj.a_fr = [(((1-obj.psi)*obj.mu(1))/(1-obj.chi*obj.mu(1))) ((obj.psi*obj.mu(2))/(1+obj.chi*obj.mu(2)))];
         end
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLOTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function pltbrakeline(obj)
-
-            plotlimit = 1;
-
-            for i = 1:length(obj.Fx_optm)
-                if (obj.Fx_optm(i,1)/obj.W)+(obj.Fx_optm(i,2)/obj.W) == plotlimit
-                    break
-                end
-            end
-
-            x1 = obj.Fx_optm(1:i,2)./obj.W;
-            y1 = obj.Fx_optm(1:i,1)./obj.W;
-            x2 = linspace(0, obj.mu(1), length(obj.Fx_optm(1:i,2)));
-            y2 = linspace(obj.mu(1), 0, length(obj.Fx_optm(1:i,2)));
-
-            [xi, yi] = polyxpoly(x1, y1, x2, y2, 'unique');
-
-            figure
-            hold all
-            grid on
-            grid('minor')
-            title('Optimum Braking Line')
-            title('Brake Curve')
-            axis([0 plotlimit 0 plotlimit])
-            xlabel('Dynamic Rear Axle Brake Force (Normalized)')
-            ylabel('Dynamic Front Axle Brake Force (Normalized)')
-            
-
-            plot(obj.Fx_optm(1:i,2)./obj.W, obj.Fx_optm(1:i,1)./obj.W, '-b', 'DisplayName', 'Optimum Braking Line')
-            plot([0 xi], [obj.a_fr(1) yi], 'r-', 'DisplayName', 'Lines of Constant Friction (front)')
-            plot([obj.a_fr(2) xi], [0 yi], 'r-', 'DisplayName', 'Lines of Constant Friction (rear)')
-
-            plot(obj.Fx_real(:,2)./obj.W, obj.Fx_real(:,1)./obj.W, '-r', 'DisplayName', 'Real Braking Line')
-
-            for j = 0.1:0.1:plotlimit
-                plot([0 j], [j 0], 'g--')
-            end
-            
-        end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLOTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
         function pltfft(obj)
             figure
             hold all
@@ -147,13 +108,12 @@ classdef BrakeClass < handle
         function pltacqrt(obj)
             figure
             hold all
-            title('')
+            title('')s
             plot(obj.Acc.Read.acqrt)
             xlabel('Acquisition Rate')
             ylabel('Samples')
             grid on
         end
-
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%STATISTICS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function pltavgacc(obj, a, b)
             figure
