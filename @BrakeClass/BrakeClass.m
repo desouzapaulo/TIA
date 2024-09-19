@@ -76,13 +76,13 @@ classdef BrakeClass < handle
 
             %% Hydraulic pressure produced by pedal force (Limpert eq 5.1)
             obj.Pl = zeros(size(obj.Fpedal_var, 2), 2);
-            obj.Pl(:, 1) = obj.BBB(1)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(1))); % (Limpert eq 7.11a)
-            obj.Pl(:, 2) = obj.BBB(2)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(2))); % (Limpert eq 7.11b)
+            obj.Pl(:, 1) = obj.BBB(1)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(1))); 
+            obj.Pl(:, 2) = obj.BBB(2)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(2)));
             
     
             %% Actual braking force (Limpert eq 5.2)
             obj.Fx_real = zeros(size(obj.Fpedal_var, 2), 2);
-            obj.Fx_real(:, 1) = 2.*(obj.Pl(:, 1) - obj.Po).*obj.Awc(1).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
+            obj.Fx_real(:, 1) = 2.*(obj.Pl(:, 1) - obj.Po).*obj.Awc(1).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2)); 
             obj.Fx_real(:, 2) = 2.*(obj.Pl(:, 2) - obj.Po).*obj.Awc(2).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
 
             %% Braking distribution (Limpert eq 7.15)
@@ -91,7 +91,7 @@ classdef BrakeClass < handle
 
         function calcCntFriction(obj)
             %% Lines of constant friction
-            obj.a_fr = [(((1-obj.psi)*obj.mu(1))/(1-obj.chi*obj.mu(1))) ((obj.psi*obj.mu(2))/(1+obj.chi*obj.mu(2)))];
+            obj.a_fr = [(((1-obj.psi)*obj.mu(1))/(1-obj.chi*obj.mu(1))) ((obj.psi*obj.mu(2))/(1+obj.chi*obj.mu(2)))]; % (Limpert eq 7.11a) (Limpert eq 7.11b)
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLOTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
         function pltfft(obj)
