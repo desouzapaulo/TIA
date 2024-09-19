@@ -5,11 +5,11 @@ clc
 %% Load files
 folder = 'C:\Users\paulo\Desktop\TIA';
 logger = "SET";
-filename = folder + "\parameters\RS12.xlsx";
+filename = folder + "\parameters\UFSC.xlsx";
 parameters = readmatrix(filename);
-BBB = 0.6;
-psi = 0.55;
-chi = 0.2;
+BBB = 0.5;
+psi = 0.49;
+chi = 0.19;
 % ======================================OUTPUT================================================
 %% Initial
 brake = BrakeClass(folder, logger, psi, chi, BBB, parameters);
@@ -19,5 +19,9 @@ brake.mu = [0.8 0.8];
 brake.calcOptBrake
 brake.calcRealBrake
 brake.calcCntFriction
-%% Plots
-brake.pltbrakeline
+
+figure
+hold all
+grid minor
+grid on
+plot(brake.Fpedal_var./9.81, brake.Pl(:, 1).*0.1)

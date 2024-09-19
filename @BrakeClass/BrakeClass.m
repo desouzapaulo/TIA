@@ -6,8 +6,8 @@ classdef BrakeClass < handle
     Acc AccClass = AccClass.empty
     % Geometric parameters
     W double = double.empty; % car weight [kg]
-    psi double = double.empty; % longitudinal weight destribution
-    chi double = double.empty; % vertical weight destribution
+    psi double = double.empty; % longitudinal weight distribution
+    chi double = double.empty; % vertical weight distribution
     Fz double = double.empty; % dynamic reaction on wheels [N]
     mu double = double.empty; % friction coeffitient of the wheel/groud interface
     a_fr double = double.empty; % line of constant friction
@@ -31,7 +31,7 @@ classdef BrakeClass < handle
     phi double = double.empty; % Real braking poportion (with the sistem dimentions)
     phi_var double = double.empty; % braking bias (the same as the BBB if both axes have the same system dimentions)
     % Braking adjustment
-    Fpedal_var  = 10:10:1000; % force applied by the pilot
+    Fpedal_var  = 10:10:2000; % force applied by the pilot [N]
     BBB double = double.empty; % brake bias adjustement
     g = 9.81; % gravity constant
     end
