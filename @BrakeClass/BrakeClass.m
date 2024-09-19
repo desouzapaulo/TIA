@@ -74,13 +74,13 @@ classdef BrakeClass < handle
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%REAL BRAKING LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function calcRealBrake(obj)
 
-            %% Hydraulic pressure produced by pedal force
+            %% Hydraulic pressure produced by pedal force (Limpert eq 5.1)
             obj.Pl = zeros(size(obj.Fpedal_var, 2), 2);
-            obj.Pl(:, 1) = obj.BBB(1)*2.*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./obj.Amc(1));
-            obj.Pl(:, 2) = obj.BBB(2)*2.*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./obj.Amc(2));
+            obj.Pl(:, 1) = obj.BBB(1)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(1)));
+            obj.Pl(:, 2) = obj.BBB(2)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(2)));
             
     
-            %% Actual braking force
+            %% Actual braking force (Limpert eq 5.2)
             obj.Fx_real = zeros(size(obj.Fpedal_var, 2), 2);
             obj.Fx_real(:, 1) = 2.*(obj.Pl(:, 1) - obj.Po).*obj.Awc(1).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
             obj.Fx_real(:, 2) = 2.*(obj.Pl(:, 2) - obj.Po).*obj.Awc(2).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
@@ -108,7 +108,7 @@ classdef BrakeClass < handle
         function pltacqrt(obj)
             figure
             hold all
-            title('')s
+            title('')
             plot(obj.Acc.Read.acqrt)
             xlabel('Acquisition Rate')
             ylabel('Samples')
