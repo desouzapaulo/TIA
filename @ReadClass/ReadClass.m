@@ -35,7 +35,7 @@ classdef ReadClass < handle
                     obj.data = readmatrix("PIG_acc.csv");
                     obj.t = readmatrix("PIG_time.csv");
                 case "Gyroscope"
-                    cd(folder)
+                    cd(obj.folder)
                     obj.fs = 100; %conferir
                     obj.data = readmatrix("Gyroscope.csv");
                     obj.acqrt = 1./diff(obj.data(:, 2));   % Acquisition rates
