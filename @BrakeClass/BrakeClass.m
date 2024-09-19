@@ -5,35 +5,35 @@ classdef BrakeClass < handle
     logger = '';
     Acc AccClass = AccClass.empty
     % Geometric parameters
-    W double = double.empty;
-    psi double = double.empty;
-    chi double = double.empty;
-    Fz double = double.empty;
-    mu double = double.empty;
-    a_fr double = double.empty;
+    W double = double.empty; % car weight [kg]
+    psi double = double.empty; % longitudinal weight destribution
+    chi double = double.empty; % vertical weight destribution
+    Fz double = double.empty; % dynamic reaction on wheels [N]
+    mu double = double.empty; % friction coeffitient of the wheel/groud interface
+    a_fr double = double.empty; % line of constant friction
     % Braking system parameters
-    Amc double = double.empty;
-    Awc double = double.empty;
-    Rext double = double.empty;
-    Hp double = double.empty;
-    l_p double = double.empty;
-    Pl double = double.empty;
-    r double = double.empty;
-    R double = double.empty;
-    Po = 7; % [N/cm²]
-    BF = 0.8;
+    Amc double = double.empty; % master cylinder cross-section area [cm²]
+    Awc double = double.empty; % wheel cylinder cross-section area [cm²]
+    Rext double = double.empty; % brake rotor external radius [mm]
+    Hp double = double.empty; % brake pad height [mm]
+    l_p double = double.empty; % pedal lever ratio
+    Pl double = double.empty; % Hydraulic pressure produced by pedal force
+    r double = double.empty; % effective braking radius
+    R double = double.empty; % wheel radius
+    Po = 7; % push-out pressure [N/cm²]
+    BF = 0.8; % brake factor
     nu_p = 0.8; 
     nu_c = 0.98; % wheel cylinder efficiency
+    mu_p = 0.45; % brake pad friction coefficient
     % Braking Analysis
-    Fx_optm double = double.empty;
-    Fx_real double = double.empty;
+    Fx_optm double = double.empty; % optimal braking forces
+    Fx_real double = double.empty; % real braking forces
     phi double = double.empty; % Real braking poportion (with the sistem dimentions)
-    phi_var double = double.empty;
+    phi_var double = double.empty; % braking bias (the same as the BBB if both axes have the same system dimentions)
     % Braking adjustment
-    Fpedal double = double.empty; % Pedal Force [N]
-    Fpedal_var  = 10:10:1000;
-    BBB double = double.empty;
-    g = 9.81;
+    Fpedal_var  = 10:10:1000; % force applied by the pilot
+    BBB double = double.empty; % brake bias adjustement
+    g = 9.81; % gravity constant
     end
     %% constructor
     methods
@@ -75,58 +75,24 @@ classdef BrakeClass < handle
         function calcRealBrake(obj)
 
             %% Hydraulic pressure produced by pedal force
-            % obj.Pl = obj.BBB.*2.*((obj.Fpedal*obj.l_p*obj.nu_p)./obj.Amc);
             obj.Pl = zeros(size(obj.Fpedal_var, 2), 2);
             obj.Pl(:, 1) = obj.BBB(1)*2.*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./obj.Amc(1));
             obj.Pl(:, 2) = obj.BBB(2)*2.*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./obj.Amc(2));
             
     
             %% Actual braking force
-            % obj.Fx_real = (obj.Pl - obj.Po).*obj.Awc.*(obj.nu_c*obj.BF).*(obj.r./obj.R);
             obj.Fx_real = zeros(size(obj.Fpedal_var, 2), 2);
             obj.Fx_real(:, 1) = 2.*(obj.Pl(:, 1) - obj.Po).*obj.Awc(1).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
             obj.Fx_real(:, 2) = 2.*(obj.Pl(:, 2) - obj.Po).*obj.Awc(2).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
 
-
-            %% Braking distribution           
-            Pl_fixed = obj.BBB.*2.*((obj.Fpedal*obj.l_p*obj.nu_p)./obj.Amc);
-            Fx_real_fixed = (Pl_fixed - obj.Po).*obj.Awc.*(obj.nu_c*obj.BF).*(obj.r./obj.R);
-
-            obj.phi = (Fx_real_fixed(2)./(Fx_real_fixed(2) + Fx_real_fixed(1))); % Brake Distribution in 400 [N]
+            %% Braking distribution
             obj.phi_var = (obj.Fx_real(:, 2)./(obj.Fx_real(:, 2) + obj.Fx_real(:, 1)));
-
         end
 
         function calcCntFriction(obj)
             %% Lines of constant friction
             obj.a_fr = [(((1-obj.psi)*obj.mu(1))/(1-obj.chi*obj.mu(1))) ((obj.psi*obj.mu(2))/(1+obj.chi*obj.mu(2)))];
         end
-
-        % %% brake torque
-        % function calcTp(obj, RpF, RpR, IWF, IWR)
-        %     IW = [IWF IWR];
-        %     Rp = [RpF RpR];
-        %     obj.Tp = (obj.Fx.*Rp) + IW.*(abs(obj.Acc.Read.data(:, 2).*obj.g)./Rp);
-        % end
-        % %% friction forces on the caliper
-        % function calcFp(obj, RextF, RextR, HpF, HpR)
-        %     Rext = [RextF RextR];
-        %     Hp = [HpF HpR];
-        %     Ref = Rext - (Hp./2);
-        %     obj.Fp = (obj.Tp./Ref).*0.5;
-        % end
-        % %% hidraulic pressure
-        % function calcPh(obj, Acp, mup)
-        %     obj.Ph = obj.Fp./(Acp*mup);
-        % end
-        % %% master cylinder forces
-        % function calcFcm(obj, Acm)
-        %     obj.Fcm = obj.Ph.*Acm;
-        % end
-        % %% brake pedral force
-        % function calcFpedal(obj, Hr)
-        %     obj.Fpedal = (obj.Fcm(:, 1)+obj.Fcm(:, 2)).*Hr;
-        % end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLOTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function pltbrakeline(obj)
@@ -187,118 +153,8 @@ classdef BrakeClass < handle
             ylabel('Samples')
             grid on
         end
-        function pltAcc(obj)
-            figure
-            hold all
-            title('Acc')
-            plot(obj.Acc.Read.t, obj.Acc.Read.data(:, 2))
-            xlabel('time [s]')
-            ylabel('Acceleration [g]')
-            grid on
-        end
-        function pltmu(obj)
-            figure
-            hold all
-            title('Traction coefficient')
-            plot(obj.Acc.Read.t, obj.mu(:,1), '-b')
-            plot(obj.Acc.Read.t, obj.mu(:,2), '-r')
-            xlabel('time [s]')
-            ylabel('\mu')
-            legend('front', 'rear')
-            grid on
-        end
-        function pltFz(obj)
-            figure
-            hold all
-            title('Dynamic Reaction')
-            plot(obj.Acc.Read.t, obj.Fz(:, 1), '-b')
-            plot(obj.Acc.Read.t, obj.Fz(:, 2), '-r')
-            xlabel('time [s]')
-            ylabel('Dynamic Reaction [N]')
-            legend('front', 'rear')
-            grid on
-        end
-        function pltFx(obj)
-            figure
-            hold all
-            title('Braking Forces')
-            plot(obj.Acc.Read.t, obj.Fx(:, 1), 'b-')
-            plot(obj.Acc.Read.t, obj.Fx(:, 2), 'r-')
-            xlabel('time [s]')
-            ylabel('Loking Force [N]')
-            legend('front', 'rear')
-            grid on
-        end
-        function pltTp(obj)
-            figure
-            hold all
-            title('')
-            plot(obj.Acc.Read.t, obj.Tp(:, 1), 'b-')
-            plot(obj.Acc.Read.t, obj.Tp(:, 2), 'r-')
-            xlabel('time [s]')
-            ylabel('Brake Torque [Nm]')
-            legend('front', 'rear')
-            grid on
-        end
-        function pltFp(obj)
-            figure
-            hold all
-            title('')
-            plot(obj.Acc.Read.t, obj.Fp(:, 1), 'b-')
-            plot(obj.Acc.Read.t, obj.Fp(:, 2), 'r-')
-            xlabel('time [s]')
-            ylabel('Friction Force [N]')
-            legend('front', 'rear')
-            grid on
-        end
-        function pltPh(obj)
-            figure
-            hold all
-            title('')
-            plot(obj.Acc.Read.t, (obj.Ph(:, 1))*1E-5, 'b-')
-            plot(obj.Acc.Read.t, (obj.Ph(:, 2))*1E-5, 'r-')
-            xlabel('time [s]')
-            ylabel('Hydraulic pressure [Bar]')
-            legend('front', 'rear')
-            grid on
-        end
-        function pltFcm(obj)
-            figure
-            hold all
-            title('')
-            plot(obj.Acc.Read.t, obj.Fcm(:, 1), 'b-')
-            plot(obj.Acc.Read.t, obj.Fcm(:, 2), 'r-')
-            xlabel('time [s]')
-            ylabel('Fcm [N]')
-            legend('front', 'rear')
-            grid on
-        end
-        function pltFpedal(obj)
-            figure
-            hold all
-            title('')
-            plot(obj.Acc.Read.t, abs((obj.Fpedal)/obj.g), 'b-')
-            plot(obj.Acc.Read.t, (445/obj.g).*ones(1,numel(obj.Acc.Read.t)))
-            plot(obj.Acc.Read.t, (823/obj.g).*ones(1,numel(obj.Acc.Read.t)))
-            legend('Data', '5th percentile female', '95th percentile male')
-            xlabel('time [s]')
-            ylabel('Fpedal [Kg]')
-            grid on
-        end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%STATISTICS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function pltavgmu(obj, a, b)
-            % range a:b in seconds
-            figure
-            hold all
-            histogram(obj.mu(a*obj.Acc.fs:b*obj.Acc.fs, 1), 'Normalization', 'probability');
-            xlabel('\mu front');
-            ylabel('Probabilidade');
-            figure(n+1)
-            histogram(obj.mu(a*obj.Acc.fs:b*obj.Acc.fs, 2), 'Normalization', 'probability');
-            xlabel('\mu rear');
-            ylabel('Probabilidade');
-        end
         function pltavgacc(obj, a, b)
             figure
             hold all
