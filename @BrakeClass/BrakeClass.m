@@ -31,6 +31,7 @@ classdef BrakeClass < handle
     phi double = double.empty; % Real braking poportion (with the sistem dimentions)
     phi_var double = double.empty; % braking bias (the same as the BBB if both axes have the same system dimentions)
     % Braking adjustment
+    Fpedal = 500; % Fixed pedal force for brake distribution [N]
     Fpedal_var  = 10:10:2000; % force applied by the pilot [N]
     BBB double = double.empty; % brake bias adjustement
     g = 9.81; % gravity constant
@@ -86,6 +87,10 @@ classdef BrakeClass < handle
             obj.Fx_real(:, 2) = 2.*(obj.Pl(:, 2) - obj.Po).*obj.Awc(2).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
 
             %% Braking distribution (Limpert eq 7.15)
+            Pl_fixed = obj.BBB.*2.*((obj.Fpedal*obj.l_p*obj.nu_p)./obj.Amc);
+            Fx_real_fixed = (Pl_fixed - obj.Po).*obj.Awc.*(obj.nu_c*obj.BF).*(obj.r./obj.R);
+
+            obj.phi = (Fx_real_fixed(2)./(Fx_real_fixed(2) + Fx_real_fixed(1))); % Brake Distribution in any force
             obj.phi_var = (obj.Fx_real(:, 2)./(obj.Fx_real(:, 2) + obj.Fx_real(:, 1)));
         end
 
