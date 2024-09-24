@@ -23,11 +23,13 @@ brake.calcmu_var
 brake.calcCntFriction
 brake.calcBrakeEff
 
-figure
-hold all
-grid on
-grid minor
-plot(brake.Acc.Read.data(:, 2), brake.mu_T(:, 1), 'DisplayName', 'Front')
-plot(brake.Acc.Read.data(:, 2), brake.mu_T(:, 2), 'DisplayName', 'Rear')
-plot(brake.Acc.Read.data(:, 2), brake.Acc.Read.data(:, 2), 'DisplayName', 'Optimum')
-legend
+brake
+
+% figure
+% hold all
+% grid on
+% grid minor
+% plot(brake.Acc.Read.data(:, 2), brake.mu_T(:, 1), 'DisplayName', 'Front')
+% plot(brake.Acc.Read.data(:, 2), brake.mu_T(:, 2), 'DisplayName', 'Rear')
+% plot(brake.Acc.Read.data(:, 2), brake.Acc.Read.data(:, 2), 'DisplayName', 'Optimum')
+% legend

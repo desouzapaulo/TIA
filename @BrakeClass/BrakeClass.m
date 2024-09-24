@@ -19,6 +19,7 @@ classdef BrakeClass < handle
     Hp double = double.empty; % brake pad height [mm]
     l_p double = double.empty; % pedal lever ratio
     Pl double = double.empty; % Hydraulic pressure produced by pedal force
+    Pl_optm double = double.empty; % optimal hydraulic pressure
     r double = double.empty; % effective braking radius
     R double = double.empty; % wheel radius
     Po = [7 7]; % push-out pressure [N/cm²]
@@ -33,8 +34,8 @@ classdef BrakeClass < handle
     phi_var double = double.empty; % braking bias (the same as the BBB if both axes have the same system dimentions)
     E double = double.empty; % Braking efficiency
     % Braking adjustment
-    Fpedal = 500; % Fixed pedal force for brake distribution [N]
-    Fpedal_var  = 10:10:2000; % force applied by the pilot [N]
+    Fpedal = 500; % Fixed pedal force for brake distribution [N]  
+    Fpedal_var double = double.empty; 
     BBB double = double.empty; % brake bias adjustement
     g = 9.81; % gravity constant
     end
@@ -59,6 +60,8 @@ classdef BrakeClass < handle
             obj.r = obj.Rext - (obj.Hp./2);
 
             obj.BBB = [(1-BBB) BBB];
+
+            obj.Fpedal_var  = linspace(0, 1000, length(obj.Acc.Read.data(:, 2))); % force applied by the pilot [N]
             
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%OPTIMUM BRAKE LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -82,8 +85,10 @@ classdef BrakeClass < handle
             obj.Pl(:, 1) = obj.BBB(1)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(1))); 
             obj.Pl(:, 2) = obj.BBB(2)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(2)));
 
-            
-            
+            obj.Pl_optm = zeros(length(obj.Acc.Read.data(:, 2)), 2);
+            a = obj.Acc.Read.data(:, 2);
+            obj.Pl_optm(:, 1) = ((1-obj.psi+obj.chi.*a).*obj.W*obj.R(1).*a) ./ (2*(obj.Awc(1)*obj.BF*obj.r(1)*obj.nu_c))+obj.Po(1);
+            obj.Pl_optm(:, 2) = ((1-obj.psi+obj.chi.*a).*obj.W*obj.R(1).*a) ./ (2*(obj.Awc(2)*obj.BF*obj.r(2)*obj.nu_c))+obj.Po(2);            
     
             %% Actual braking force (Limpert eq 5.2)
             obj.Fx_real = zeros(size(obj.Fpedal_var, 2), 2);
