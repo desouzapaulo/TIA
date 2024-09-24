@@ -46,7 +46,7 @@ classdef ReadClass < handle
                 case "SET"
                     obj.fs = 50;
                     period = 5; % seconds
-                    limit = 1; % g
+                    limit = 9.81; % m/s²
                     obj.t = linspace(0, period, obj.fs);
                     obj.data(:, 2) = linspace(0, limit, obj.fs);                   
             end

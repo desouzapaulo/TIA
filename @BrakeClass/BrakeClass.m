@@ -3,7 +3,8 @@ classdef BrakeClass < handle
     % Data type and folder
     folder = '';
     logger = '';
-    Acc AccClass = AccClass.empty
+    Acc AccClass = AccClass.empty;
+    a double = double.empty;
     % Geometric parameters
     W double = double.empty; % car weight [kg]
     psi double = double.empty; % longitudinal weight distribution
@@ -41,10 +42,14 @@ classdef BrakeClass < handle
     end
     %% constructor
     methods
-        function obj = BrakeClass(folder, logger, psi, chi, BBB, parameters)
+        function obj = BrakeClass(folder, logger)
             obj.folder = folder;
             obj.logger = logger;
-            obj.Acc = AccClass(obj.folder, obj.logger);
+            obj.Acc = AccClass(obj.folder, obj.logger);                                       
+        end
+
+        function ReadParameters(obj, psi, chi, BBB, parameters)
+            obj.a = abs(obj.Acc.Read.data(:, 2)./obj.g);
 
             obj.psi = psi;
             obj.chi = chi;
@@ -59,26 +64,25 @@ classdef BrakeClass < handle
 
             obj.r = obj.Rext - (obj.Hp./2);
 
-            obj.BBB = [(1-BBB) BBB];
+            obj.BBB = [(1-BBB) BBB];        
 
-            obj.Fpedal_var  = linspace(0, 1000, length(obj.Acc.Read.data(:, 2))); % force applied by the pilot [N]
-            
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%OPTIMUM BRAKE LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function calcOptBrake(obj)
+        function calcOptBrake(obj)        
         %% dynamic reaction on Wheels        
-            Fzf = (1 - obj.psi + obj.chi.*(obj.Acc.Read.data(:, 2))).*obj.W; % (Limpert eq 7.3a)
-            Fzr = (obj.psi - obj.chi.*(obj.Acc.Read.data(:, 2))).*obj.W; % (Limpert eq 7.3b)
+            Fzf = (1 - obj.psi + obj.chi.*(obj.a)).*obj.W; % (Limpert eq 7.3a)
+            Fzr = (obj.psi - obj.chi.*(obj.a)).*obj.W; % (Limpert eq 7.3b)
             obj.Fz = [Fzf Fzr];
        
         %% Braking forces
-            Fxf = (1 - obj.psi + obj.chi.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W); % (Limpert eq 7.5a)
-            Fxr = (obj.psi - obj.chi.*(obj.Acc.Read.data(:, 2))).*((obj.Acc.Read.data(:, 2)).*obj.W); % (Limpert eq 7.5b)
+            Fxf = (1 - obj.psi + obj.chi.*(obj.a)).*((obj.a).*obj.W); % (Limpert eq 7.5a)
+            Fxr = (obj.psi - obj.chi.*(obj.a)).*((obj.a).*obj.W); % (Limpert eq 7.5b)
             obj.Fx_optm = [Fxf Fxr];
 
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%REAL BRAKING LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function calcRealBrake(obj)
+            obj.Fpedal_var  = linspace(0, 1000, size(obj.a, 1)); % force applied by the pilot [N]
 
             %% Hydraulic pressure produced by pedal force (Limpert eq 5.1)
             obj.Pl = zeros(size(obj.Fpedal_var, 2), 2);
@@ -86,10 +90,9 @@ classdef BrakeClass < handle
             obj.Pl(:, 2) = obj.BBB(2)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(2)));
 
             %% Optimum hydraulic pressure
-            obj.Pl_optm = zeros(length(obj.Acc.Read.data(:, 2)), 2);
-            a = obj.Acc.Read.data(:, 2);
-            obj.Pl_optm(:, 1) = ((1-obj.psi+obj.chi.*a).*obj.W*obj.R(1).*a) ./ (2*(obj.Awc(1)*obj.BF*obj.r(1)*obj.nu_c))+obj.Po(1); % (Limpert eq 7.30a)
-            obj.Pl_optm(:, 2) = ((obj.psi-obj.chi.*a).*obj.W*obj.R(1).*a) ./ (2*(obj.Awc(2)*obj.BF*obj.r(2)*obj.nu_c))+obj.Po(2); % (Limpert eq 7.30b)
+            obj.Pl_optm = zeros(length(obj.a), 2);
+            obj.Pl_optm(:, 1) = ((1-obj.psi+obj.chi.*obj.a).*obj.W*obj.R(1).*obj.a) ./ (2*(obj.Awc(1)*obj.BF*obj.r(1)*obj.nu_c))+obj.Po(1); % (Limpert eq 7.30a)
+            obj.Pl_optm(:, 2) = ((obj.psi-obj.chi.*obj.a).*obj.W*obj.R(1).*obj.a) ./ (2*(obj.Awc(2)*obj.BF*obj.r(2)*obj.nu_c))+obj.Po(2); % (Limpert eq 7.30b)
     
             %% Actual braking force (Limpert eq 5.2)
             obj.Fx_real = zeros(size(obj.Fpedal_var, 2), 2);
@@ -108,9 +111,8 @@ classdef BrakeClass < handle
             obj.mu = [(((1-obj.phi)*a)/(1-obj.phi+obj.chi*a)) ((obj.phi*a)/(obj.phi-obj.chi*a))];
         end
 
-        function calcmu_var(obj)
-            a = obj.Acc.Read.data(:, 2);
-            obj.mu_var = [(((1-obj.phi).*a)./(1-obj.phi+obj.chi.*a)) ((obj.phi.*a)./(obj.phi-obj.chi.*a))];            
+        function calcmu_var(obj)            
+            obj.mu_var = [(((1-obj.phi).*obj.a)./(1-obj.phi+obj.chi.*obj.a)) ((obj.phi.*obj.a)./(obj.phi-obj.chi.*obj.a))];            
         end
 
         function calcCntFriction(obj)
@@ -122,7 +124,17 @@ classdef BrakeClass < handle
             %% (Limpert eq 7.18a) (Limpert eq 7.18b)
             obj.E = [((1-obj.psi)/(1-obj.phi-obj.mu(1)*obj.chi)) (obj.psi/(obj.phi+obj.mu(2)*obj.chi))];
         end
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLOTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLOTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        function pltAcc(obj)
+            figure
+            hold all
+            title('Acc')
+            plot(obj.Acc.Read.t, obj.a)
+            xlabel('time [s]')
+            ylabel('Acceleration [g]')
+            grid on
+        end
+         
         function pltfft(obj)
             figure
             hold all
@@ -142,7 +154,7 @@ classdef BrakeClass < handle
             ylabel('Samples')
             grid on
         end
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%STATISTICS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%STATISTICS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
         function pltavgacc(obj, a, b)
             figure
             hold all
