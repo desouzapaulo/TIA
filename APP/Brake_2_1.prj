@@ -1,14 +1,18 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration file="C:\Users\paulo\Desktop\TIA\APP\Brake_2_1.prj" location="C:\Users\paulo\Desktop\TIA\APP" name="Brake_2_1" target="target.mlapps" target-name="Package App">
+  <configuration build-checksum="2666016409" file="C:\Users\paulo\Desktop\TIA\APP\Brake_2_1.prj" location="C:\Users\paulo\Desktop\TIA\APP" name="Brake_2_1" target="target.mlapps" target-name="Package App">
     <param.appname>Brake_2_1</param.appname>
     <param.authnamewatermark>Paulo</param.authnamewatermark>
-    <param.email />
-    <param.company />
-    <param.icon />
-    <param.icons />
+    <param.email>paulohbs2001@gmail.com</param.email>
+    <param.company>RS Racing UFRGS</param.company>
+    <param.icon>${PROJECT_ROOT}\Brake_2_1_resources\icon_24.png</param.icon>
+    <param.icons>
+      <file>${PROJECT_ROOT}\Brake_2_1_resources\icon_48.png</file>
+      <file>${PROJECT_ROOT}\Brake_2_1_resources\icon_24.png</file>
+      <file>${PROJECT_ROOT}\Brake_2_1_resources\icon_16.png</file>
+    </param.icons>
     <param.summary />
     <param.description />
-    <param.screenshot>C:\Users\paulo\AppData\Local\Temp\tp700cce58_9397_4750_ad2a_90e93ff08ee1.png</param.screenshot>
+    <param.screenshot>C:\Users\paulo\AppData\Local\Temp\tpa9e3ec31_ceb5_4857_a7c2_25da0a265e08.png</param.screenshot>
     <param.version>2.0</param.version>
     <param.products.name />
     <param.products.id />
@@ -17,10 +21,6 @@
     <param.output>${PROJECT_ROOT}</param.output>
     <param.guid>5b9d5a9f-86d1-41b4-a509-16ef5e1715c5</param.guid>
     <unset>
-      <param.email />
-      <param.company />
-      <param.icon />
-      <param.icons />
       <param.summary />
       <param.description />
       <param.products.name />

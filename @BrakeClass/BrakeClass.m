@@ -9,7 +9,8 @@ classdef BrakeClass < handle
     psi double = double.empty; % longitudinal weight distribution
     chi double = double.empty; % vertical weight distribution
     Fz double = double.empty; % dynamic reaction on wheels [N]
-    mu double = double.empty; % friction coeffitient of the wheel/groud interface
+    mu double = double.empty; % friction coeffitient of the wheel/groud interface at a fixed acceleration
+    mu_T double = double.empty; % friction coeffitient of the wheel/groud interface
     a_fr double = double.empty; % line of constant friction
     % Braking system parameters
     Amc double = double.empty; % master cylinder cross-section area [cm²]
@@ -20,7 +21,7 @@ classdef BrakeClass < handle
     Pl double = double.empty; % Hydraulic pressure produced by pedal force
     r double = double.empty; % effective braking radius
     R double = double.empty; % wheel radius
-    Po = 7; % push-out pressure [N/cm²]
+    Po = [7 7]; % push-out pressure [N/cm²]
     BF = 0.8; % brake factor
     nu_p = 0.8; 
     nu_c = 0.98; % wheel cylinder efficiency
@@ -30,6 +31,7 @@ classdef BrakeClass < handle
     Fx_real double = double.empty; % real braking forces
     phi double = double.empty; % Real braking poportion (with the sistem dimentions)
     phi_var double = double.empty; % braking bias (the same as the BBB if both axes have the same system dimentions)
+    E double = double.empty; % Braking efficiency
     % Braking adjustment
     Fpedal = 500; % Fixed pedal force for brake distribution [N]
     Fpedal_var  = 10:10:2000; % force applied by the pilot [N]
@@ -79,12 +81,14 @@ classdef BrakeClass < handle
             obj.Pl = zeros(size(obj.Fpedal_var, 2), 2);
             obj.Pl(:, 1) = obj.BBB(1)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(1))); 
             obj.Pl(:, 2) = obj.BBB(2)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(2)));
+
+            
             
     
             %% Actual braking force (Limpert eq 5.2)
             obj.Fx_real = zeros(size(obj.Fpedal_var, 2), 2);
-            obj.Fx_real(:, 1) = 2.*(obj.Pl(:, 1) - obj.Po).*obj.Awc(1).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2)); 
-            obj.Fx_real(:, 2) = 2.*(obj.Pl(:, 2) - obj.Po).*obj.Awc(2).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
+            obj.Fx_real(:, 1) = 2.*(obj.Pl(:, 1) - obj.Po(1)).*obj.Awc(1).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2)); 
+            obj.Fx_real(:, 2) = 2.*(obj.Pl(:, 2) - obj.Po(2)).*obj.Awc(2).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
 
             %% Braking distribution (Limpert eq 7.15)
             Pl_fixed = obj.BBB.*2.*((obj.Fpedal*obj.l_p*obj.nu_p)./obj.Amc);
@@ -94,9 +98,23 @@ classdef BrakeClass < handle
             obj.phi_var = (obj.Fx_real(:, 2)./(obj.Fx_real(:, 2) + obj.Fx_real(:, 1)));
         end
 
+        function calcmu_fix(obj, a)
+            obj.mu = [(((1-obj.phi)*a)/(1-obj.phi+obj.chi*a)) ((obj.phi*a)/(obj.phi-obj.chi*a))];
+        end
+
+        function calcmu_var(obj)
+            a = obj.Acc.Read.data(:, 2);
+            obj.mu_T = [(((1-obj.phi).*a)./(1-obj.phi+obj.chi.*a)) ((obj.phi.*a)./(obj.phi-obj.chi.*a))];            
+        end
+
         function calcCntFriction(obj)
-            %% Lines of constant friction
-            obj.a_fr = [(((1-obj.psi)*obj.mu(1))/(1-obj.chi*obj.mu(1))) ((obj.psi*obj.mu(2))/(1+obj.chi*obj.mu(2)))]; % (Limpert eq 7.11a) (Limpert eq 7.11b)
+            %% Lines of constant friction (Limpert eq 7.11a) (Limpert eq 7.11b)
+            obj.a_fr = [(((1-obj.psi)*obj.mu(1))/(1-obj.chi*obj.mu(1))) ((obj.psi*obj.mu(2))/(1+obj.chi*obj.mu(2)))];
+        end
+
+        function calcBrakeEff(obj)
+            %% (Limpert eq 7.18a) (Limpert eq 7.18b)
+            obj.E = [((1-obj.psi)/(1-obj.phi-obj.mu(1)*obj.chi)) (obj.psi/(obj.phi+obj.mu(2)*obj.chi))];
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLOTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
         function pltfft(obj)
