@@ -10,7 +10,7 @@ classdef BrakeClass < handle
     chi double = double.empty; % vertical weight distribution
     Fz double = double.empty; % dynamic reaction on wheels [N]
     mu double = double.empty; % friction coeffitient of the wheel/groud interface at a fixed acceleration
-    mu_T double = double.empty; % friction coeffitient of the wheel/groud interface
+    mu_var double = double.empty; % friction coeffitient of the wheel/groud interface
     a_fr double = double.empty; % line of constant friction
     % Braking system parameters
     Amc double = double.empty; % master cylinder cross-section area [cm²]
@@ -110,7 +110,7 @@ classdef BrakeClass < handle
 
         function calcmu_var(obj)
             a = obj.Acc.Read.data(:, 2);
-            obj.mu_T = [(((1-obj.phi).*a)./(1-obj.phi+obj.chi.*a)) ((obj.phi.*a)./(obj.phi-obj.chi.*a))];            
+            obj.mu_var = [(((1-obj.phi).*a)./(1-obj.phi+obj.chi.*a)) ((obj.phi.*a)./(obj.phi-obj.chi.*a))];            
         end
 
         function calcCntFriction(obj)
