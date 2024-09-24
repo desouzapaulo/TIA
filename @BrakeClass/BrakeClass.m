@@ -85,10 +85,11 @@ classdef BrakeClass < handle
             obj.Pl(:, 1) = obj.BBB(1)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(1))); 
             obj.Pl(:, 2) = obj.BBB(2)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(2)));
 
+            %% Optimum hydraulic pressure
             obj.Pl_optm = zeros(length(obj.Acc.Read.data(:, 2)), 2);
             a = obj.Acc.Read.data(:, 2);
-            obj.Pl_optm(:, 1) = ((1-obj.psi+obj.chi.*a).*obj.W*obj.R(1).*a) ./ (2*(obj.Awc(1)*obj.BF*obj.r(1)*obj.nu_c))+obj.Po(1);
-            obj.Pl_optm(:, 2) = ((1-obj.psi+obj.chi.*a).*obj.W*obj.R(1).*a) ./ (2*(obj.Awc(2)*obj.BF*obj.r(2)*obj.nu_c))+obj.Po(2);            
+            obj.Pl_optm(:, 1) = ((1-obj.psi+obj.chi.*a).*obj.W*obj.R(1).*a) ./ (2*(obj.Awc(1)*obj.BF*obj.r(1)*obj.nu_c))+obj.Po(1); % (Limpert eq 7.30a)
+            obj.Pl_optm(:, 2) = ((obj.psi-obj.chi.*a).*obj.W*obj.R(1).*a) ./ (2*(obj.Awc(2)*obj.BF*obj.r(2)*obj.nu_c))+obj.Po(2); % (Limpert eq 7.30b)
     
             %% Actual braking force (Limpert eq 5.2)
             obj.Fx_real = zeros(size(obj.Fpedal_var, 2), 2);
@@ -103,7 +104,7 @@ classdef BrakeClass < handle
             obj.phi_var = (obj.Fx_real(:, 2)./(obj.Fx_real(:, 2) + obj.Fx_real(:, 1)));
         end
 
-        function calcmu_fix(obj, a)
+        function calcmu(obj, a)
             obj.mu = [(((1-obj.phi)*a)/(1-obj.phi+obj.chi*a)) ((obj.phi*a)/(obj.phi-obj.chi*a))];
         end
 

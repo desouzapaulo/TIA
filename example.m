@@ -18,18 +18,8 @@ brake = BrakeClass(folder, logger, psi, chi, BBB, parameters);
 %% Solve brake
 brake.calcOptBrake
 brake.calcRealBrake
-brake.calcmu_fix(0.8)
+brake.calcmu(0.8)
 brake.calcmu_var
 brake.calcCntFriction
 brake.calcBrakeEff
-
 brake
-
-% figure
-% hold all
-% grid on
-% grid minor
-% plot(brake.Acc.Read.data(:, 2), brake.mu_T(:, 1), 'DisplayName', 'Front')
-% plot(brake.Acc.Read.data(:, 2), brake.mu_T(:, 2), 'DisplayName', 'Rear')
-% plot(brake.Acc.Read.data(:, 2), brake.Acc.Read.data(:, 2), 'DisplayName', 'Optimum')
-% legend
