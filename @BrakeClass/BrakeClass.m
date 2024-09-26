@@ -10,8 +10,9 @@ classdef BrakeClass < handle
     psi double = double.empty; % longitudinal weight distribution
     chi double = double.empty; % vertical weight distribution
     Fz double = double.empty; % dynamic reaction on wheels [N]
-    mu double = double.empty; % friction coeffitient of the wheel/groud interface at a fixed acceleration
-    mu_var double = double.empty; % friction coeffitient of the wheel/groud interface
+    mu_T double = double.empty; % friction coeffitient of the wheel/groud interface at a fixed acceleration
+    mu_real double = double.empty; % friction coeffitient of the wheel/groud interface
+    mu_optm double = double.empty; % friction coeffitient of the wheel/groud interface
     a_fr double = double.empty; % line of constant friction
     % Braking system parameters
     Amc double = double.empty; % master cylinder cross-section area [cm²]
@@ -109,21 +110,25 @@ classdef BrakeClass < handle
 
         function calcmu(obj, a)
              %% (Limpert eq 7.17a) (Limpert eq 7.17b)
-            obj.mu = [(((1-obj.phi)*a)/(1-obj.phi+obj.chi*a)) ((obj.phi*a)/(obj.phi-obj.chi*a))];
+            obj.mu_T = [(((1-obj.phi)*a)/(1-obj.phi+obj.chi*a)) ((obj.phi*a)/(obj.phi-obj.chi*a))];
         end
 
-        function calcmu_var(obj)            
-            obj.mu_var = [(((1-obj.phi).*obj.a)./(1-obj.phi+obj.chi.*obj.a)) ((obj.phi.*obj.a)./(obj.phi-obj.chi.*obj.a))];            
+        function calcmu_real(obj)            
+            obj.mu_real = [obj.Fx_real(:, 1)./obj.Fz(:, 1) obj.Fx_real(:, 2)./obj.Fz(:, 2)];            
+        end
+
+        function calcmu_optm(obj)            
+            obj.mu_optm = [obj.Fx_optm(:, 1)./obj.Fz(:, 1) obj.Fx_optm(:, 2)./obj.Fz(:, 2)];            
         end
 
         function calcCntFriction(obj)
             %% Lines of constant friction (Limpert eq 7.11a) (Limpert eq 7.11b)
-            obj.a_fr = [(((1-obj.psi)*obj.mu(1))/(1-obj.chi*obj.mu(1))) ((obj.psi*obj.mu(2))/(1+obj.chi*obj.mu(2)))];
+            obj.a_fr = [(((1-obj.psi)*obj.mu_T(1))/(1-obj.chi*obj.mu_T(1))) ((obj.psi*obj.mu_T(2))/(1+obj.chi*obj.mu_T(2)))];
         end
 
         function calcBrakeEff(obj)
             %% (Limpert eq 7.18a) (Limpert eq 7.18b)
-            obj.E = [((1-obj.psi)/(1-obj.phi-obj.mu(1)*obj.chi)) (obj.psi/(obj.phi+obj.mu(2)*obj.chi))];
+            obj.E = [((1-obj.psi)/(1-obj.phi-obj.mu_T(1)*obj.chi)) (obj.psi/(obj.phi+obj.mu_T(2)*obj.chi))];
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLOTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function pltAcc(obj)
@@ -159,7 +164,7 @@ classdef BrakeClass < handle
         function pltavgacc(obj, a, b)
             figure
             hold all
-            histogram(obj.Acc.R.data(a*obj.Acc.fs:b*obj.Acc.fs, 2), 'Normalization', 'probability');            
+            histogram(obj.Acc.Read.data(a*obj.Acc.Read.fs:b*obj.Acc.Read.fs, 2), 'Normalization', 'probability');            
         end
         function pltdistn(obj, a, b, datatype)
             switch datatype
@@ -184,7 +189,7 @@ classdef BrakeClass < handle
                     title('Rear')
                 case 'acc'
                     figure
-                    histfit(obj.Acc.Read.data(a*obj.Acc.fs:b*obj.Acc.fs, 2),50,'Normal');
+                    histfit(obj.Acc.Read.data(a*obj.Acc.Read.fs:b*obj.Acc.Read.fs, 2),50,'Normal');
                     xlabel('Data [acc]');
                     ylabel('Frequency');
                     legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
