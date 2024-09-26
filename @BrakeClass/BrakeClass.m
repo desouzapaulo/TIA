@@ -108,6 +108,7 @@ classdef BrakeClass < handle
         end
 
         function calcmu(obj, a)
+             %% (Limpert eq 7.17a) (Limpert eq 7.17b)
             obj.mu = [(((1-obj.phi)*a)/(1-obj.phi+obj.chi*a)) ((obj.phi*a)/(obj.phi-obj.chi*a))];
         end
 
