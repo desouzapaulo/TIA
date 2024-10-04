@@ -44,7 +44,7 @@ classdef ReadClass < handle
                     obj.t = 0:1/obj.fs:traw(end);
                     obj.data = interp1(traw,araw,obj.t,"spline","extrap"); % interpolate data through dt
                 case "SET"
-                    obj.fs = 50;
+                    obj.fs = 1000;
                     period = 5; % seconds
                     limit = 9.81; % m/s²
                     obj.t = linspace(0, period, obj.fs);
