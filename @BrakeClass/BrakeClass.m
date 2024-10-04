@@ -22,11 +22,13 @@ classdef BrakeClass < handle
     l_p double = double.empty; % pedal lever ratio
     Pl double = double.empty; % Hydraulic pressure produced by pedal force
     Pl_optm double = double.empty; % optimal hydraulic pressure
+    Pl_Pedal double = double.empty; % hydraulic pressure for certain pedal force
     r double = double.empty; % effective braking radius
     R double = double.empty; % wheel radius
+    % Parametros tabelados que podem ser medidos por experimentos e corrigidos
     Po = [7 7]; % push-out pressure [N/cm²]
     BF = 0.8; % brake factor
-    nu_p = 0.8; 
+    nu_p = 0.8; % brake pedal efficiency
     nu_c = 0.98; % wheel cylinder efficiency
     mu_p = 0.45; % brake pad friction coefficient
     % Braking Analysis
@@ -36,7 +38,7 @@ classdef BrakeClass < handle
     phi_var double = double.empty; % braking bias (the same as the BBB if both axes have the same system dimentions)
     E double = double.empty; % Braking efficiency
     % Braking adjustment
-    Fpedal = 500; % Fixed pedal force for brake distribution [N]  
+    Fpedal double = double.empty; % Fixed pedal force for brake distribution [N]  
     Fpedal_var double = double.empty; 
     BBB double = double.empty; % brake bias adjustement
     g = 9.81; % gravity constant
@@ -69,7 +71,7 @@ classdef BrakeClass < handle
 
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%OPTIMUM BRAKE LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function calcOptBrake(obj)        
+        function solveOptBrake(obj)        
         %% dynamic reaction on Wheels        
             Fzf = (1 - obj.psi + obj.chi.*(obj.a)).*obj.W; % (Limpert eq 7.3a)
             Fzr = (obj.psi - obj.chi.*(obj.a)).*obj.W; % (Limpert eq 7.3b)
@@ -82,11 +84,11 @@ classdef BrakeClass < handle
 
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%REAL BRAKING LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function calcRealBrake(obj)
-            obj.Fpedal_var  = linspace(0, 1000, size(obj.a, 1)); % force applied by the pilot [N]
+        function solveRealBrake(obj)
+            obj.Fpedal_var  = linspace(0, 2000, size(obj.a, 1)); % force applied by the pilot [N]
 
             %% Hydraulic pressure produced by pedal force (Limpert eq 5.1)
-            obj.Pl = zeros(size(obj.Fpedal_var, 2), 2);
+            obj.Pl = zeros(size(obj.Fpedal_var, 2), 2); % [N/cm²]
             obj.Pl(:, 1) = obj.BBB(1)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(1))); 
             obj.Pl(:, 2) = obj.BBB(2)*(((obj.Fpedal_var).*obj.l_p*obj.nu_p)./(obj.Amc(2)));
 
@@ -96,37 +98,52 @@ classdef BrakeClass < handle
             obj.Pl_optm(:, 2) = ((obj.psi-obj.chi.*obj.a).*obj.W*obj.R(1).*obj.a) ./ (2*(obj.Awc(2)*obj.BF*obj.r(2)*obj.nu_c))+obj.Po(2); % (Limpert eq 7.30b)
     
             %% Actual braking force (Limpert eq 5.2)
-            obj.Fx_real = zeros(size(obj.Fpedal_var, 2), 2);
+            obj.Fx_real = zeros(size(obj.Fpedal_var, 2), 2); % [N]
             obj.Fx_real(:, 1) = 2.*(obj.Pl(:, 1) - obj.Po(1)).*obj.Awc(1).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2)); 
             obj.Fx_real(:, 2) = 2.*(obj.Pl(:, 2) - obj.Po(2)).*obj.Awc(2).*(obj.nu_c*obj.BF).*(obj.r(1)/obj.R(2));
-
+                      
             %% Braking distribution (Limpert eq 7.15)
-            Pl_fixed = obj.BBB.*2.*((obj.Fpedal*obj.l_p*obj.nu_p)./obj.Amc);
-            Fx_real_fixed = (Pl_fixed - obj.Po).*obj.Awc.*(obj.nu_c*obj.BF).*(obj.r./obj.R);
-
-            obj.phi = (Fx_real_fixed(2)./(Fx_real_fixed(2) + Fx_real_fixed(1))); % Brake Distribution in any force
             obj.phi_var = (obj.Fx_real(:, 2)./(obj.Fx_real(:, 2) + obj.Fx_real(:, 1)));
         end
 
-        function calcmu(obj, a)
-             %% (Limpert eq 7.17a) (Limpert eq 7.17b)
+        function solveFpedal(obj, a)
+            tol = 0.01;
+            for i = 1:size(obj.Fx_real, 1)
+                totalacc = (obj.Fx_real(i, 1) + obj.Fx_real(i, 1))/obj.W;
+                if  totalacc <= a + tol
+                    if totalacc >= a - tol
+                        obj.phi = (obj.Fx_real(i, 2)/(obj.Fx_real(i, 2) + obj.Fx_real(i, 1)));
+                        obj.Fpedal = obj.Fpedal_var(i)/obj.g; % [kg]
+                        obj.Pl_Pedal = [obj.Pl(i, 1)*0.1 obj.Pl(i, 2)*0.1]; % [Bar]
+                    end
+                end
+            end
+            if obj.Fpedal >= 100
+                warning('Pedal force is above 100 kg')
+            elseif obj.Fpedal <= 10
+                warning('Pedal force is below 10 kg')
+            end            
+        end
+
+        function solvemu(obj, a)
+            %% (Limpert eq 7.17a) (Limpert eq 7.17b)
             obj.mu_T = [(((1-obj.phi)*a)/(1-obj.phi+obj.chi*a)) ((obj.phi*a)/(obj.phi-obj.chi*a))];
         end
 
-        function calcmu_real(obj)            
+        function solvemu_real(obj)            
             obj.mu_real = [obj.Fx_real(:, 1)./obj.Fz(:, 1) obj.Fx_real(:, 2)./obj.Fz(:, 2)];            
         end
 
-        function calcmu_optm(obj)            
+        function solvemu_optm(obj)            
             obj.mu_optm = [obj.Fx_optm(:, 1)./obj.Fz(:, 1) obj.Fx_optm(:, 2)./obj.Fz(:, 2)];            
         end
 
-        function calcCntFriction(obj)
+        function solveCntFriction(obj)
             %% Lines of constant friction (Limpert eq 7.11a) (Limpert eq 7.11b)
             obj.a_fr = [(((1-obj.psi)*obj.mu_T(1))/(1-obj.chi*obj.mu_T(1))) ((obj.psi*obj.mu_T(2))/(1+obj.chi*obj.mu_T(2)))];
         end
 
-        function calcBrakeEff(obj)
+        function solveBrakeEff(obj)
             %% (Limpert eq 7.18a) (Limpert eq 7.18b)
             obj.E = [((1-obj.psi)/(1-obj.phi-obj.mu_T(1)*obj.chi)) (obj.psi/(obj.phi+obj.mu_T(2)*obj.chi))];
         end
