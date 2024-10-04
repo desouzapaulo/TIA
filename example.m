@@ -7,7 +7,7 @@ folder = 'C:\Users\paulo\Desktop\TIA\data\Phone\formula-2';
 logger = "SET";
 filename = 'C:\Users\paulo\Desktop\TIA\parameters\RS11.xlsx';
 parameters = readmatrix(filename);
-BBB = 0.4; %  for the rear
+BBB = 0.4; % for the rear
 psi = 0.56;
 chi = 0.2;
 acc = 0.8;
@@ -28,3 +28,4 @@ brake.solveCntFriction
 brake.solveBrakeEff
 
 fprintf('\n%.1f kg @ %.2f g\n', brake.Fpedal, acc)
+brake.Pl_Pedal

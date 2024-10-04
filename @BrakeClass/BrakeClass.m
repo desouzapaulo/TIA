@@ -113,7 +113,8 @@ classdef BrakeClass < handle
                 if  totalacc <= a + tol
                     if totalacc >= a - tol
                         obj.phi = (obj.Fx_real(i, 2)/(obj.Fx_real(i, 2) + obj.Fx_real(i, 1)));
-                        obj.Fpedal = obj.Fpedal_var(i)/obj.g;                                             
+                        obj.Fpedal = obj.Fpedal_var(i)/obj.g; % [kg]
+                        obj.Pl_Pedal = [obj.Pl(i, 1)*0.1 obj.Pl(i, 2)*0.1]; % [Bar]
                     end
                 end
             end
