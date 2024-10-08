@@ -5,10 +5,10 @@ clc
 %% Load files
 folder = 'C:\Users\paulo\Desktop\TIA\data\Phone\formula-2';
 logger = "SET";
-filename = 'C:\Users\paulo\Desktop\TIA\parameters\RS11.xlsx';
+filename = 'C:\Users\paulo\Desktop\TIA\parameters\UFSC.xlsx';
 parameters = readmatrix(filename);
-BBB = 0.4; % for the rear
-psi = 0.56;
+BBB = 0.5; % for the rear
+psi = 0.5;
 chi = 0.2;
 acc = 0.8;
 % ======================================OUTPUT================================================
@@ -28,4 +28,5 @@ brake.solveCntFriction
 brake.solveBrakeEff
 
 fprintf('\n%.1f kg @ %.2f g\n', brake.Fpedal, acc)
-brake.Pl_Pedal
+fprintf('\nFront: %.2f [Bar]\nRear: %.2f [Bar]', brake.Pl_Pedal(1), brake.Pl_Pedal(2))
+fprintf('\nBraking Efficiency: %.2f [Front]    %.2f [Rear]', brake.E(1), brake.E(2))
