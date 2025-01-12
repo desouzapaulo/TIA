@@ -12,7 +12,7 @@ classdef AccClass < handle
             obj.folder = folder;
             obj.logger = logger;
             switch obj.logger
-                case "Phone"
+                case "PHONE"
                     obj.sensor = "Accelerometer";
                     obj.Read = ReadClass(obj.folder, obj.sensor);                 
                 case "PIG"
