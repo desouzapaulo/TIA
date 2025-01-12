@@ -52,6 +52,10 @@ classdef BrakeClass < handle
         end
 
         function ReadParameters(obj, psi, chi, BBB, parameters)
+            if obj.logger == "PHONE"
+                obj.Acc.Read.fft
+                obj.Acc.Read.filter(2)
+            end
             obj.a = abs(obj.Acc.Read.data(:, 2)./obj.g);
 
             obj.psi = psi;
@@ -126,7 +130,7 @@ classdef BrakeClass < handle
         end
 
         function solvemu(obj, a)
-            %% (Limpert eq 7.17a) (Limpert eq 7.17b)
+            %% (Limpert eq 7.17a) (Limpert eq 7.17b) % revisar, acho que esta ao contrario
             obj.mu_T = [(((1-obj.phi)*a)/(1-obj.phi+obj.chi*a)) ((obj.phi*a)/(obj.phi-obj.chi*a))];
         end
 
