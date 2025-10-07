@@ -63,6 +63,7 @@ classdef BrakeClass < handle
             obj.BBB = [BBB (1-BBB)];        
 
         end
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%OPTIMUM BRAKE LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function solveOptBrake(obj)        
         %% dynamic reaction on Wheels        
@@ -80,6 +81,7 @@ classdef BrakeClass < handle
             obj.Pl_optm(:, 2) = ((obj.psi-obj.chi*obj.a)*obj.W*obj.R(1)*obj.a) ./ (2*(obj.Awc(2)*obj.BF*obj.r(2)*obj.nu_c))+obj.Po(2); % (Limpert eq 7.30b)
 
         end
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%REAL BRAKING LINE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function solveRealBrake(obj)
 
@@ -125,11 +127,11 @@ classdef BrakeClass < handle
             obj.mu_T = [(((1-obj.phi)*obj.mu_tyre)/(1-obj.phi+obj.chi*obj.mu_tyre)) ((obj.phi*obj.mu_tyre)/(obj.phi-obj.chi*obj.mu_tyre))];
         end
 
-        function solvemu_real(obj)            
+        function solvemu_real(obj)
             obj.mu_real = [obj.Fx_real(:, 1)./obj.Fz(:, 1) obj.Fx_real(:, 2)./obj.Fz(:, 2)];            
         end
 
-        function solvemu_optm(obj)            
+        function solvemu_optm(obj)
             obj.mu_optm = [obj.Fx_optm(:, 1)./obj.Fz(:, 1) obj.Fx_optm(:, 2)./obj.Fz(:, 2)];            
         end
 
@@ -142,5 +144,165 @@ classdef BrakeClass < handle
             %% (Limpert eq 7.18a) (Limpert eq 7.18b)
             obj.E = [((1-obj.psi)/(1-obj.phi-obj.mu_T(1)*obj.chi)) (obj.psi/(obj.phi+obj.mu_T(2)*obj.chi))];
         end
+<<<<<<< HEAD
+=======
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLOTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        function pltAcc(obj)
+            hold(fig, 'off')
+            title(fig, 'Acc')
+            plot(fig, obj.Acc.Read.t, obj.a)
+            xlabel(fig, 'time [s]')
+            ylabel(fig, 'Acceleration [g]')
+        end
+         
+        function pltfft(obj, fig)
+            hold(fig, 'off')
+            title(fig, 'FFT')
+            plot(fig, obj.Acc.Read.w, obj.Acc.Read.A(:, 2))
+            xlabel(fig, 'Amplitude')
+            ylabel(fig, 'Frequency')
+        end
+
+        function pltacqrt(obj, fig)
+            hold(fig, 'off')
+            title(fig, '')
+            plot(fig, obj.Acc.Read.acqrt)
+            xlabel(fig, 'Acquisition Rate')
+            ylabel(fig, 'Samples')
+        end
+
+        function pltbrkline(obj, fig)
+
+            hold(fig, 'off')
+
+            plotlimit = 1;  
+
+            % --------------- Lines of constant -----------------                    
+        
+            for i = 1:length(obj.Fx_optm)
+                if (obj.Fx_optm(i,1)/obj.W)+(obj.Fx_optm(i,2)/obj.W) == plotlimit
+                    break
+                end
+            end
+
+            x1 = obj.Fx_optm(1:i,2)./obj.W;
+            y1 = obj.Fx_optm(1:i,1)./obj.W;
+            x2 = linspace(0, obj.mu_T(1), length(obj.Fx_optm(1:i,2)));
+            y2 = linspace(obj.mu_T(1), 0, length(obj.Fx_optm(1:i,2)));
+
+            % intesection of lines
+            [xi, yi] = polyxpoly(x1, y1, x2, y2, 'unique');
+
+            axis(fig, [0 1 0 1]) % define axis limits
+
+            % ---------------------------------------------------
+
+            for j = 0.1:0.1:1               
+                plot(fig, [0 j], [j 0], 'g--')
+                hold(fig, "on")
+            end       
+
+            plot(fig, x1, y1) % optimum braking line
+            plot(fig, [0 xi], [obj.a_fr(1) yi], 'r-') % line of disconnected front axel
+            plot(fig, [obj.a_fr(2) xi], [0 yi], 'r-') % line of disconnected rear axel                    
+
+            for j = 1:length(obj.Fx_optm)
+                if (obj.Fx_real(j,1)/obj.W)+(obj.Fx_real(j,2)/obj.W) == plotlimit
+                    break
+                end
+            end
+
+            plot(fig, obj.Fx_real(1:j,2)./obj.W, obj.Fx_real(1:j,1)./obj.W)
+            xlabel(fig, 'Dynamic Rear Axle Brake Force (Normalized)')
+            ylabel(fig, 'Dynamic Front Axle Brake Force (Normalized)')
+            title(fig, 'Brake line')
+            hold(fig, "off")
+        end
+
+        function pltpress(obj, fig)
+
+            hold(fig, 'off')
+
+            x = obj.Fpedal_var./obj.g;
+            y = obj.Pl(:, 1).*0.1 + obj.Pl(:, 2).*0.1;
+            axis(fig, [0 x(end) 0 y(end)])
+            title(fig, 'Hydraulic Pressure')
+            
+            ylabel(fig, 'Hydraulic Pressure [Bar]')                    
+            xlabel(fig, 'Pedal Force [Kg]')                                     
+
+            y = obj.Pl(:, 1).*0.1;
+            plot(fig, x, y, 'DisplayName', 'Front Pressure')
+            hold(fig, 'on')
+
+            y = obj.Pl(:, 2).*0.1;
+            plot(fig, x, y, 'DisplayName', 'Rear Pressure')
+            
+            legend(fig)
+            hold(fig, 'off')
+        end
+
+        function pltbrkforce(obj, fig)
+            hold(fig, 'off')
+
+            x = obj.Fpedal_var./obj.g;
+            y = obj.Fx_real(:, 1)./obj.W + obj.Fx_real(:, 2)./obj.W;
+            axis(fig, [0 x(end) 0 y(end)])
+            title(fig, 'Braking Forces')
+            
+            ylabel(fig, 'Braking Force (Normalized)')                    
+            xlabel(fig, 'Pedal Force [Kg]')
+            
+            plot(fig, x, y, 'DisplayName', 'Total Braking force (Normalized)') 
+            hold(fig, 'on')
+
+            y = obj.Fx_real(:, 1)./obj.W;
+            plot(fig, x, y, 'DisplayName', 'Front Braking force (Normalized)')
+
+            y = obj.Fx_real(:, 2)./obj.W;
+            plot(fig, x, y, 'DisplayName', 'Rear Braking force (Normalized)')
+            
+            legend(fig)
+            hold(fig, 'off')    
+        end
+
+        function pltavgacc(obj, a, b, fig)
+            hold(fig, 'off')
+            histogram(fig, obj.Acc.Read.data(a*obj.Acc.Read.fs:b*obj.Acc.Read.fs, 2), 'Normalization', 'probability');            
+        end
+
+        function pltdistn(obj, a, b, datatype)
+            switch datatype
+                case 'mu'
+                    figure
+                    histfit(obj.mu(a*obj.Acc.fs:b*obj.Acc.fs, 1), 50, 'Normal')
+                    xlabel('Dados [\mu]');
+                    ylabel('Frequencia');
+                    legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
+                    title('Front \mu')
+                    figure
+                    histfit(obj.mu(a*obj.Acc.fs:b*obj.Acc.fs, 2),50,'Normal');
+                    xlabel('Dados [\mu]');
+                    ylabel('Frequencia');
+                    legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
+                    title('Rear \mu')
+                    figure
+                    qqplot(obj.mu(a*obj.Acc.fs:b*obj.Acc.fs, 1))
+                    title('Front')
+                    figure
+                    qqplot(obj.mu(a*obj.Acc.fs:b*obj.Acc.fs, 2))
+                    title('Rear')
+                case 'acc'
+                    figure
+                    histfit(obj.Acc.Read.data(a*obj.Acc.Read.fs:b*obj.Acc.Read.fs, 2),50,'Normal');
+                    xlabel('Data [acc]');
+                    ylabel('Frequency');
+                    legend('Data', 'Normal Distribution', 'Location', 'NorthWest')
+                    figure
+                    qqplot(obj.Acc.Read.data(a*obj.Acc.fs:b*obj.Acc.fs, 2));
+                    title('Acc.Read.data')                                    
+            end
+        end
+>>>>>>> c11cdffe1f133704f309dc556e7fb5fa5827d978
     end
 end
