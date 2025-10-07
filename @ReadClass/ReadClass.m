@@ -48,7 +48,7 @@ classdef ReadClass < handle
                     period = 5; % seconds
                     limit = 9.81; % m/s²
                     obj.t = linspace(0, period, obj.fs);
-                    obj.data(:, 2) = linspace(0, limit, obj.fs);                   
+                    obj.data(:, 2) = linspace(0, limit, obj.fs);
             end
         end
         %% FFT analizys
