@@ -1,6 +1,4 @@
-close all
-clear all
-clc
+close all;clear all;clc
 % ======================================INPUT=================================================
 %% Load files
 filename = 'C:\GIT\TIA\parameters\RS12.xlsx';
@@ -14,6 +12,7 @@ mu = 0.8;
 brake = BrakeClass(mu);
 brake.ReadParameters(psi, chi, BBB, parameters);
 % Solve brake
+brake.l_p = 5;
 brake.solveOptBrake
 brake.solveRealBrake
 
